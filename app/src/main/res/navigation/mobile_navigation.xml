@@ -12,10 +12,10 @@
         tools:layout="@layout/fragment_category" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.tofukma.serverorderapp.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_food_list"
+        android:name="com.tofukma.serverorderapp.ui.foodlist.FoodListFragment"
+        android:label="@string/menu_food_list"
+        tools:layout="@layout/fragment_food_list" />
 
     <fragment
         android:id="@+id/nav_slideshow"

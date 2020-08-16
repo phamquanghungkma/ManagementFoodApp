@@ -1,10 +1,12 @@
 package com.tofukma.serverorderapp.common
 
 import com.tofukma.serverorderapp.model.CategoryModel
+import com.tofukma.serverorderapp.model.FoodModel
 import com.tofukma.serverorderapp.model.ServerUserModel
 
 object Common {
 
+    var foodSelected: FoodModel ?= null
     var categorySelected: CategoryModel?= null
     val CATEGORY_REF: String = "Category"
     val SERVER_REF = "Server"
