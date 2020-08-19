@@ -172,7 +172,6 @@ class CategoryFragment : Fragment() {
         val updateDialog = builder.create()
         updateDialog.show()
     }
-
     private fun updateCategory(updateDate: java.util.HashMap<String, Any>) {
         FirebaseDatabase.getInstance()
             .getReference(Common.CATEGORY_REF)
