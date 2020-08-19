@@ -15,11 +15,12 @@
         android:id="@+id/nav_food_list"
         android:name="com.tofukma.serverorderapp.ui.foodlist.FoodListFragment"
         android:label="@string/menu_food_list"
-        tools:layout="@layout/fragment_food_list" />
+        tools:layout="@layout/fragment_food_list">
+        <action android:id="@+id/clearBackStack"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/nav_category"
+            app:popUpToInclusive="true"></action>
+    </fragment>
 
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.tofukma.serverorderapp.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+
 </navigation>

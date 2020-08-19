@@ -28,9 +28,11 @@ import com.tofukma.serverorderapp.adapter.MyCategoriesAdapter
 import com.tofukma.serverorderapp.callback.IMyButtonCallback
 import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.common.MySwipeHelper
+import com.tofukma.serverorderapp.eventbus.ToastEvent
 import com.tofukma.serverorderapp.model.CategoryModel
 import dmax.dialog.SpotsDialog
 import kotlinx.android.synthetic.main.layout_update_category.*
+import org.greenrobot.eventbus.EventBus
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -180,7 +182,7 @@ class CategoryFragment : Fragment() {
             .addOnFailureListener { e -> Toast.makeText(context, ""+e.message,Toast.LENGTH_SHORT).show() }
             .addOnCompleteListener { task ->
                 categoryViewModel!!.loadCategory()
-                Toast.makeText(context,"Update Success", Toast.LENGTH_SHORT).show()
+               EventBus.getDefault().postSticky(ToastEvent(true,false))
             }
     }
 

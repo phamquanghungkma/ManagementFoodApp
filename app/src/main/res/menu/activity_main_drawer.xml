@@ -3,15 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group >
         <item
             android:id="@+id/nav_category"
             android:icon="@drawable/ic_baseline_restaurant_menu_24"
             android:title="@string/menu_category" />
 
+
+    </group>
+    <group>
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
+            android:id="@+id/nav_sign_out"
+            android:icon="@drawable/ic_baseline_exit_to_app_24"
+            android:title="@string/menu_sign_out" />
+
+
     </group>
 </menu>

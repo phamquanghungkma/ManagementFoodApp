@@ -1,8 +1,12 @@
 package com.tofukma.serverorderapp.ui.foodlist
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.media.Image
+import android.net.Uri
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.StringBuilderPrinter
 import android.view.LayoutInflater
 import android.view.View
@@ -30,12 +34,18 @@ import com.tofukma.serverorderapp.adapter.MyFoodListAdapter
 import com.tofukma.serverorderapp.callback.IMyButtonCallback
 import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.common.MySwipeHelper
+import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
+import com.tofukma.serverorderapp.eventbus.ToastEvent
 import com.tofukma.serverorderapp.model.FoodModel
 import dmax.dialog.SpotsDialog
-import java.util.ArrayList
+import org.greenrobot.eventbus.EventBus
+import java.util.*
+import kotlin.collections.HashMap
 
 class FoodListFragment : Fragment(){
 
+    private var imageUri: Uri?=null
+    private val PICK_IMAGE_REQUEST: Int=1234
     private lateinit var foodListViewModel: FoodListViewModel
     var recycler_food_list : RecyclerView?= null
     var layoutAnimationController: LayoutAnimationController?= null
@@ -108,7 +118,7 @@ class FoodListFragment : Fragment(){
                                 .setNegativeButton("CANCEL",{dialogInterface, _ -> dialogInterface.dismiss()  })
                                 .setPositiveButton("Xoá",{dialogInterface, i ->
                                         Common.categorySelected!!.foods!!.removeAt(pos)
-                                        updateFood(Common.categorySelected!!.foods)
+                                        updateFood(Common.categorySelected!!.foods,true)
 
                                 })
 
@@ -151,24 +161,81 @@ class FoodListFragment : Fragment(){
         img_food = itemView.findViewById<View>(R.id.img_food_image) as ImageView
 
         //set data
-        edt_food_name.setText(StringBuilder("").append(Common.categorySelected.foods!![pos].name))
-        edt_food_price.setText(StringBuilder("").append(Common.categorySelected.foods!![pos].price))
-        edt_food_description.setText(StringBuilder("").append(Common.categorySelected.foods!![pos].description))
+        edt_food_name.setText(StringBuilder("").append(Common.categorySelected!!.foods!![pos].name))
+        edt_food_price.setText(StringBuilder("").append(Common.categorySelected!!.foods!![pos].price))
+        edt_food_description.setText(StringBuilder("").append(Common.categorySelected!!.foods!![pos].description))
 
-        Glide.with(context!!).load(Common.categorySelected.foods!![pos].image).into(img_food!!)
+        Glide.with(context!!).load(Common.categorySelected!!.foods!![pos].image).into(img_food!!)
 
         // set event
         img_food!!.setOnClickListener{
-            
-
+            val intent = Intent()
+            intent.type = "image/*"
+            intent.action = Intent.ACTION_GET_CONTENT
+            startActivityForResult(Intent.createChooser(intent,"Lựa chọn ảnh"),PICK_IMAGE_REQUEST)
 
         }
+        builder.setNegativeButton("Hủy",{dialogInterface, _ -> dialogInterface.dismiss()  })
+        builder.setPositiveButton("Cập nhật" ) {dialogInterface, i ->
+            val updateFood = Common.categorySelected!!.foods!![pos]
+            updateFood.name = edt_food_name.text.toString()
+                    updateFood.price = if(TextUtils.isEmpty(edt_food_price.text))
+                0
+            else
+                        edt_food_price.text.toString().toLong()
+                //edt_food_price.text.toString().toLong()
+            updateFood.description = edt_food_description.text.toString()
 
+            if(imageUri != null){
+                dialog.setMessage("Uploading...")
+                dialog.show()
 
+                val imageName = UUID.randomUUID().toString()
+                val imageFolder = storageReference.child("images/$imageName")
+                imageFolder.putFile(imageUri!!)
+                    .addOnFailureListener { e ->
+                        dialog.dismiss()
+                        Toast.makeText(context, ""+e.message, Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnProgressListener { taskSnapshot ->
+                        val progress = 100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount
+                        dialog.setMessage("Uploaded $progress%")
+                    }
+                    .addOnSuccessListener { taskSnapshot ->
+                        dialogInterface.dismiss()
+                        imageFolder.downloadUrl.addOnSuccessListener { uri ->
+                            dialog.dismiss()
+                            updateFood.image = uri.toString()
+                            Common.categorySelected!!.foods!![pos] = updateFood
+                            updateFood(Common.categorySelected!!.foods!!,false)
+                        }
+                    }
+            }
+            else{
+                Common.categorySelected!!.foods!![pos] = updateFood
+                updateFood(Common.categorySelected!!.foods!!,false)
+            }
+        }
+
+        builder.setView(itemView)
+        val updateDialog = builder.create()
+        updateDialog.show()
 
     }
 
-    private fun updateFood(foods: MutableList<FoodModel>?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK)
+        {
+            if(data != null && data.data != null)
+            {
+                imageUri = data.data
+                img_food!!.setImageURI(imageUri)
+            }
+        }
+    }
+
+    private fun updateFood(foods: MutableList<FoodModel>?,isDelete:Boolean) {
         val updateData = HashMap<String,Any>()
         updateData["foods"] = foods!!
 
@@ -181,9 +248,14 @@ class FoodListFragment : Fragment(){
             .addOnCompleteListener { task ->
                 if(task.isSuccessful){
                     foodListViewModel.getMutableFoodModelListData()
-                    Toast.makeText(context!!,"Xoá thành công ",Toast.LENGTH_LONG).show()
+                 EventBus.getDefault().postSticky(ToastEvent(!isDelete,true))
 
                 }
             }
+    }
+
+    override fun onDestroy() {
+        EventBus.getDefault().postSticky(ChangeMenuClick(true))
+        super.onDestroy()
     }
 }
