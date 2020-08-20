@@ -182,10 +182,9 @@ class FoodListFragment : Fragment(){
                     updateFood.price = if(TextUtils.isEmpty(edt_food_price.text))
                 0
             else
-                        edt_food_price.text.toString().toLong()
+                  edt_food_price.text.toString().toLong()
                 //edt_food_price.text.toString().toLong()
             updateFood.description = edt_food_description.text.toString()
-
             if(imageUri != null){
                 dialog.setMessage("Uploading...")
                 dialog.show()
