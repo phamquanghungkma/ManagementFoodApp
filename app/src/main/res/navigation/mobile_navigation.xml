@@ -22,5 +22,16 @@
             app:popUpToInclusive="true"></action>
     </fragment>
 
+    <fragment
+        android:id="@+id/nav_order"
+        android:name="com.tofukma.serverorderapp.ui.order.OrderFragment"
+        android:label="@string/menu_order"
+        tools:layout="@layout/fragment_order">
+
+        <action android:id="@+id/clearBackStack"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/nav_category"
+            app:popUpToInclusive="true"></action>
+    </fragment>
 
 </navigation>

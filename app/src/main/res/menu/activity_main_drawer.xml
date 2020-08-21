@@ -11,6 +11,14 @@
 
 
     </group>
+    <group >
+        <item
+            android:id="@+id/nav_order"
+            android:icon="@drawable/ic_baseline_format_list_bulleted_24"
+            android:title="@string/menu_order" />
+
+
+    </group>
     <group>
         <item
             android:id="@+id/nav_sign_out"

@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -47,7 +49,7 @@ class HomeActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_category, R.id.nav_food_list
+                R.id.nav_category, R.id.nav_food_list, R.id.nav_order
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -67,11 +69,22 @@ class HomeActivity : AppCompatActivity() {
                     if (menuCLick != p0.itemId)
                     navController.navigate(R.id.nav_category)
                 }
+                else if(p0.itemId == R.id.nav_order)
+                {
+                    if (menuCLick != p0.itemId)
+                        navController.navigate(R.id.nav_order)
+                }
                 menuCLick != p0!!.itemId
 
                 return true
             }
         })
+
+        //View
+        val headerView = navView.getHeaderView(0)
+        val text_user = headerView.findViewById<View>(R.id.text_user) as TextView
+        Common.setSpanString("Chao ", Common.currentServerUser!!.name,text_user)
+
     }
 
     private fun singOut() {

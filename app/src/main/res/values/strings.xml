@@ -10,7 +10,7 @@
     <string name="action_search">Search</string>
     <string name="menu_category">Categories</string>
     <string name="menu_food_list">Food list</string>
-
+    <string name="menu_order">Orders</string>
 
     <string name="menu_sign_out">Sign out</string>
 </resources>
