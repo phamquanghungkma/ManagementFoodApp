@@ -123,7 +123,6 @@ class HomeActivity : AppCompatActivity() {
                 navController!!.navigate(R.id.nav_food_list)
                 menuCLick = R.id.nav_food_list
             }
-
         }
     }
 
@@ -133,11 +132,9 @@ class HomeActivity : AppCompatActivity() {
             //clear
             navController!!.popBackStack(R.id.nav_category,true)
             navController!!.navigate(R.id.nav_category)
-
         }
         menuCLick = -1
     }
-
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     fun onToastEvent(event: ToastEvent){

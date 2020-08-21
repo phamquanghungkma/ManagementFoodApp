@@ -82,4 +82,8 @@ class MyFoodListAdapter (internal var context: Context,
             }
         })
     }
+
+    fun getItemAtPosition(pos: Int): FoodModel {
+        return foodList.get(pos)
+    }
 }
