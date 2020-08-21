@@ -7,6 +7,7 @@ import android.media.Image
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.DisplayMetrics
 import android.util.StringBuilderPrinter
 import android.view.LayoutInflater
 import android.view.View
@@ -30,11 +31,13 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.tofukma.serverorderapp.R
+import com.tofukma.serverorderapp.SizeAddonEditActivity
 import com.tofukma.serverorderapp.adapter.MyFoodListAdapter
 import com.tofukma.serverorderapp.callback.IMyButtonCallback
 import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.common.MySwipeHelper
 import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
+import com.tofukma.serverorderapp.eventbus.SizeAddonEditEvent
 import com.tofukma.serverorderapp.eventbus.ToastEvent
 import com.tofukma.serverorderapp.model.FoodModel
 import dmax.dialog.SpotsDialog
@@ -97,8 +100,11 @@ class FoodListFragment : Fragment(){
 
 
         (activity as AppCompatActivity).supportActionBar!!.title = Common.categorySelected!!.name
+        val displayMetrics = DisplayMetrics()
+        activity!!.windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val width = displayMetrics.widthPixels
 
-        val swipe = object: MySwipeHelper(context!!, recycler_food_list!!, 300)
+        val swipe = object: MySwipeHelper(context!!, recycler_food_list!!, width/6)
         {
             override fun instantianteMyButton(
                 viewHolder: RecyclerView.ViewHolder,
@@ -139,6 +145,35 @@ class FoodListFragment : Fragment(){
 
                             showUpdateDialog(pos)
 
+
+                        }
+                    }))
+
+                buffer.add(MyButton(context!!,
+                    "Size",
+                    30,
+                    0,
+                    Color.parseColor("#12005e"),
+                    object: IMyButtonCallback {
+                        override fun onClick(pos: Int) {
+
+                            Common.foodSelected = foodModelList!![pos]
+                            startActivity(Intent(context,SizeAddonEditActivity::class.java))
+                            EventBus.getDefault().postSticky(SizeAddonEditEvent(false,pos))
+
+                        }
+                    }))
+
+                buffer.add(MyButton(context!!,
+                    "Addon",
+                    30,
+                    0,
+                    Color.parseColor("#333639"),
+                    object: IMyButtonCallback {
+                        override fun onClick(pos: Int) {
+                            Common.foodSelected = foodModelList!![pos]
+                            startActivity(Intent(context,SizeAddonEditActivity::class.java))
+                            EventBus.getDefault().postSticky(SizeAddonEditEvent(true,pos))
 
                         }
                     }))
