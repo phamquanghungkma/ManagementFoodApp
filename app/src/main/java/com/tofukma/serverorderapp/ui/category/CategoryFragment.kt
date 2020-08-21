@@ -173,6 +173,7 @@ class CategoryFragment : Fragment() {
         builder.setView(itemView)
         val updateDialog = builder.create()
         updateDialog.show()
+
     }
     private fun updateCategory(updateDate: java.util.HashMap<String, Any>) {
         FirebaseDatabase.getInstance()
@@ -197,4 +198,5 @@ class CategoryFragment : Fragment() {
             }
         }
     }
+
 }
