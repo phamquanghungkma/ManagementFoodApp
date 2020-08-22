@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:weightSum="10"
+    android:orientation="horizontal">
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:scaleType="fitXY"
+        android:id="@+id/img_food_image"></ImageView>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_weight="7"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_order_number"
+            android:text="25/8/2020 9:15:05"
+            android:textColor="@android:color/holo_blue_bright"
+            android:fontFamily="@font/brandon_medium"
+            android:textStyle="italic"
+            android:textSize="16sp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_name"
+            android:text="Tên : CA Ran"
+            android:fontFamily="@font/brandon_medium"
+            android:textStyle="italic"
+            android:textSize="16sp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_time"
+            android:text="Ngày đặt hàng : 16/12/2020"
+            android:fontFamily="@font/brandon_medium"
+            android:textStyle="italic"
+            android:textSize="16sp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_order_status"
+            android:text="Trạng thái đơn hàng : Nơi ở"
+            android:fontFamily="@font/brandon_medium"
+            android:textStyle="italic"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_num_item"
+            android:text="Số lượng món: 10"
+            android:fontFamily="@font/brandon_medium"
+            android:textStyle="italic"
+            android:textSize="16sp"/>
+    </LinearLayout>
+</LinearLayout>
+</androidx.cardview.widget.CardView>
