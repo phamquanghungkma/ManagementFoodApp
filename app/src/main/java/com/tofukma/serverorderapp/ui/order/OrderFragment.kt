@@ -1,9 +1,7 @@
 package com.tofukma.serverorderapp.ui.order
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.LinearLayout
@@ -18,7 +16,7 @@ import com.tofukma.serverorderapp.adapter.MyOrderAdapter
 
 class OrderFragment : Fragment()
 {
-  lateinit var recycler_order:RecyclerView
+    lateinit var recycler_order:RecyclerView
     lateinit var layoutAnimationController:LayoutAnimationController
     lateinit var orderViewModel: OrderViewModel
     private var adapter : MyOrderAdapter?= null
@@ -45,10 +43,17 @@ class OrderFragment : Fragment()
         return root
     }
     private fun initView(root:View){
+
+        setHasOptionsMenu(true)
+
         recycler_order = root.findViewById(R.id.recycler_order) as RecyclerView
         recycler_order.setHasFixedSize(true)
         recycler_order.layoutManager = LinearLayoutManager(context)
 
         layoutAnimationController = AnimationUtils.loadLayoutAnimation(context,R.anim.layout_item_from_left)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.order_list_menu, menu)
     }
 }

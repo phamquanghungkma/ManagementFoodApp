@@ -1,5 +1,6 @@
 package com.tofukma.serverorderapp.ui.order
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -15,7 +16,7 @@ import kotlin.collections.ArrayList
 
 class OrderViewModel : ViewModel(), IOrderCallbackListener {
 
- private   val orderModelList = MutableLiveData<List<OrderModel>>()
+    private var orderModelList = MutableLiveData<List<OrderModel>>()
     val messsageError = MutableLiveData<String>()
     private val orderCallbackListener:IOrderCallbackListener
 
@@ -41,6 +42,7 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
 
             override fun onDataChange(p0: DataSnapshot) {
                for (itemSnapShot in p0.children){
+//                   Log.e(TAG,"+1 oder")
                    val orderModel = itemSnapShot.getValue(OrderModel::class.java)
                    orderModel!!.key = itemSnapShot.key
                    tempList.add(orderModel)
@@ -52,14 +54,7 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
 
     override fun onOrderLoadSuccess(orderModel: List<OrderModel>) {
        if (orderModel.size > 0)
-       {
-           Collections.sort(orderModel){t1,t2->
-               if (t1.createDate < t2.createDate) return@sort -1
-               if (t1.createDate == t2.createDate) 0 else 1
-           }
            orderModelList.value = orderModel
-       }
-
     }
 
     override fun onOrderLoadFailed(message: String) {
