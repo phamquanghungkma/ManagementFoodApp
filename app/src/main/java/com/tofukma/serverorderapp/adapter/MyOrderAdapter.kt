@@ -16,7 +16,7 @@ import com.tofukma.serverorderapp.model.OrderModel
 import java.text.SimpleDateFormat
 
 class MyOrderAdapter (internal var context: Context,
-                      internal var orderList: List<OrderModel>) :
+                      internal var orderList: MutableList<OrderModel>) :
     RecyclerView.Adapter<MyOrderAdapter.MyViewHolder>() {
     lateinit var simpleDataFormat:SimpleDateFormat
     init {
@@ -66,5 +66,13 @@ class MyOrderAdapter (internal var context: Context,
 
         Common.setPanStringColor("Ten ",orderList[position].userName,
             holder.txt_name,Color.parseColor("#006061"))
+    }
+
+    fun getItemAtPosition(pos: Int): OrderModel {
+        return  orderList[pos]
+    }
+
+    fun removeItem(pos: Int) {
+        orderList.removeAt(pos)
     }
 }

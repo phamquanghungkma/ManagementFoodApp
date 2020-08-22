@@ -153,6 +153,7 @@ class FoodListFragment : Fragment(){
 
 
         (activity as AppCompatActivity).supportActionBar!!.title = Common.categorySelected!!.name
+
         val displayMetrics = DisplayMetrics()
         activity!!.windowManager.defaultDisplay.getMetrics(displayMetrics)
         val width = displayMetrics.widthPixels
