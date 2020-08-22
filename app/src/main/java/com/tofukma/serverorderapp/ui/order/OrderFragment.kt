@@ -13,6 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tofukma.serverorderapp.R
 import com.tofukma.serverorderapp.adapter.MyOrderAdapter
+import com.tofukma.serverorderapp.common.BottomSheetOrderFragment
+import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
+import com.tofukma.serverorderapp.eventbus.LoadOrderEvent
+import kotlinx.android.synthetic.main.fragment_order.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
+import java.lang.StringBuilder
 
 class OrderFragment : Fragment()
 {
@@ -38,6 +46,10 @@ class OrderFragment : Fragment()
                 adapter = MyOrderAdapter(context!!,orderList)
                 recycler_order.adapter = adapter
                 recycler_order.layoutAnimation = layoutAnimationController
+
+                txt_order_filter.setText(StringBuilder("Order (")
+                    .append(orderList.size)
+                    .append(")"))
             }
         })
         return root
@@ -55,5 +67,38 @@ class OrderFragment : Fragment()
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.order_list_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == R.id.action_filter){
+            val bottomSheet = BottomSheetOrderFragment.instances
+            bottomSheet!!.show(activity!!.supportFragmentManager,"OrderList")
+        }
+        return true
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if(!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this)
+    }
+
+    override fun onStop() {
+        if(EventBus.getDefault().hasSubscriberForEvent(LoadOrderEvent::class.java))
+            EventBus.getDefault().removeStickyEvent(LoadOrderEvent::class.java)
+        if (EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this)
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        EventBus.getDefault().postSticky(ChangeMenuClick(true))
+        super.onDestroy()
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    fun  onLoadOrder(event: LoadOrderEvent)
+    {
+        orderViewModel.loadOrder(event.status)
     }
 }

@@ -47,7 +47,7 @@ object Common {
         when(orderStatus){
             0 -> "Đặt hàng"
             1 -> "Đang Chuyển Hàng"
-            2 -> "Vận Chuyển"
+            2 -> "Đến nơi"
             -1 -> "Hủy đơn hàng"
             else -> "Lỗi đặt hàng"
         }

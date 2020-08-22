@@ -16,7 +16,7 @@ import kotlin.collections.ArrayList
 
 class OrderViewModel : ViewModel(), IOrderCallbackListener {
 
-    private var orderModelList = MutableLiveData<List<OrderModel>>()
+    private val orderModelList = MutableLiveData<List<OrderModel>>()
     val messsageError = MutableLiveData<String>()
     private val orderCallbackListener:IOrderCallbackListener
 
@@ -28,7 +28,7 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
         return orderModelList
     }
 
-    private fun loadOrder(status: Int) {
+     fun loadOrder(status: Int) {
 
         val tempList  : MutableList<OrderModel> = ArrayList()
         val orderRef = FirebaseDatabase.getInstance()
@@ -53,8 +53,14 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
     }
 
     override fun onOrderLoadSuccess(orderModel: List<OrderModel>) {
-       if (orderModel.size > 0)
+       if (orderModel.size >= 0) {
+           Collections.sort(orderModel){t1,t2 ->
+               if(t1.createDate < t2.createDate) return@sort -1
+               if(t1.createDate == t2.createDate) 0 else 1
+           }
+
            orderModelList.value = orderModel
+       }
     }
 
     override fun onOrderLoadFailed(message: String) {
