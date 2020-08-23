@@ -14,7 +14,7 @@ import com.tofukma.serverorderapp.R
 import com.tofukma.serverorderapp.model.AddonModel
 import com.tofukma.serverorderapp.model.CartItem
 import com.tofukma.serverorderapp.model.SizeModel
-import java.lang.StringBuilder
+import kotlin.text.StringBuilder
 
 
 class MyOrderDetailAdapter (internal var context: Context,
@@ -30,6 +30,7 @@ class MyOrderDetailAdapter (internal var context: Context,
         var txt_food_size: TextView?=null
         var txt_food_addon: TextView?=null
         var txt_food_quantity: TextView?=null
+        var txt_food_comment: TextView?=null
         var img_food_image: ImageView?=null
 
         init{
@@ -38,6 +39,7 @@ class MyOrderDetailAdapter (internal var context: Context,
             txt_food_size = itemView.findViewById(R.id.txt_size) as TextView
             txt_food_addon = itemView.findViewById(R.id.txt_food_add_on) as TextView
             txt_food_quantity = itemView.findViewById(R.id.txt_food_quantity) as TextView
+            txt_food_comment = itemView.findViewById(R.id.txt_comment) as TextView
 
         }
 
@@ -45,7 +47,7 @@ class MyOrderDetailAdapter (internal var context: Context,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder(LayoutInflater.from(context)
-            .inflate(R.layout.layout_order_detail_item,parent,false))
+            .inflate(R.layout.layout_order_detail_item2,parent,false))
     }
 
     override fun getItemCount(): Int {
@@ -57,6 +59,7 @@ class MyOrderDetailAdapter (internal var context: Context,
             .into(holder.img_food_image!!)
         holder.txt_food_name!!.setText(StringBuilder().append(cartItemList[position].foodName))
         holder.txt_food_quantity!!.setText(StringBuilder("Số lượng: ").append(cartItemList[position].foodQuantity))
+        holder.txt_food_comment!!.setText(StringBuilder("Ghi chú: ").append("Giao nhanh "))
         val sizeModel: SizeModel = gson.fromJson(cartItemList[position].foodSize,
             object:TypeToken<SizeModel?>(){}.type)
         if(sizeModel != null) holder.txt_food_size!!.setText(StringBuilder("Kích thước: ").append(sizeModel.name))
