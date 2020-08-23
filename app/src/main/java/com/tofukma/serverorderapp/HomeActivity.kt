@@ -67,12 +67,16 @@ class HomeActivity : AppCompatActivity() {
                 else if(p0.itemId == R.id.nav_category)
                 {
                     if (menuCLick != p0.itemId)
-                    navController.navigate(R.id.nav_category)
+                    {
+                        navController.navigate(R.id.nav_category)
+                    }
                 }
                 else if(p0.itemId == R.id.nav_order)
                 {
                     if (menuCLick != p0.itemId)
+                    {
                         navController.navigate(R.id.nav_order)
+                    }
                 }
                 menuCLick != p0!!.itemId
 
@@ -85,6 +89,7 @@ class HomeActivity : AppCompatActivity() {
         val text_user = headerView.findViewById<View>(R.id.text_user) as TextView
         Common.setSpanString("Chao ", Common.currentServerUser!!.name,text_user)
 
+        menuCLick = R.id.nav_category // Dafault
     }
 
     private fun singOut() {
