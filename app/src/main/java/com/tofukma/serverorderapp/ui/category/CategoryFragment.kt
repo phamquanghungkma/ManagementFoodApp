@@ -85,7 +85,7 @@ class CategoryFragment : Fragment() {
         layoutAnimationController = AnimationUtils.loadLayoutAnimation(context,R.anim.layout_item_from_left)
         recycler_menu = root.findViewById(R.id.recycler_menu) as RecyclerView
         recycler_menu!!.setHasFixedSize(true)
-        val staggeredGridLayoutManager = StaggeredGridLayoutManager(2,RecyclerView.VERTICAL)
+        val staggeredGridLayoutManager = StaggeredGridLayoutManager(1,RecyclerView.VERTICAL)
         val layoutManager = LinearLayoutManager(context)
 
 //        recycler_menu!!.layoutManager = layoutManager

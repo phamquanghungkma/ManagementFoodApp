@@ -15,7 +15,8 @@ import com.tofukma.serverorderapp.eventbus.CategoryClick
 import com.tofukma.serverorderapp.model.CategoryModel
 import org.greenrobot.eventbus.EventBus
 
-class MyCategoriesAdapter (internal var context: Context, internal var categoriesList: List<CategoryModel>) : RecyclerView.Adapter<MyCategoriesAdapter.MyViewHolder>(){
+class MyCategoriesAdapter (internal var context: Context, internal var categoriesList: List<CategoryModel>)
+    : RecyclerView.Adapter<MyCategoriesAdapter.MyViewHolder>(){
 
     inner class MyViewHolder (itemView : View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
@@ -45,7 +46,7 @@ class MyCategoriesAdapter (internal var context: Context, internal var categorie
         parent: ViewGroup,
         viewType: Int
     ): MyCategoriesAdapter.MyViewHolder {
-        return MyViewHolder(LayoutInflater.from(context).inflate(R.layout.layout_category_item,parent,false))
+        return MyViewHolder(LayoutInflater.from(context).inflate(R.layout.layout_category_item_v2,parent,false))
 
     }
 

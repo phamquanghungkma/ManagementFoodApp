@@ -61,8 +61,6 @@ class CategoryViewModel : ViewModel(), ICategoryCallBackListener {
             }
         })
 
-
-
     }
 
 }
