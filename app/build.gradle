@@ -64,4 +64,19 @@ dependencies {
     implementation 'com.karumi:dexter:6.0.0'
 
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.firebase:firebase-messaging:20.0.0'
+
+    // retrofit
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.6.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
+
+    // java rx
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'com.github.d-max:spots-dialog:1.1@aar'
+
+
+
+
+
 }

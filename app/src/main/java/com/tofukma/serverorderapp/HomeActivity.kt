@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.eventbus.CategoryClick
 import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
@@ -41,6 +42,10 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        // lắng nghe Notification Topic đc gửi từ Client
+        subscribeToTopic(Common.getNewOrderTopic())
+
 
         drawerLayout = findViewById(R.id.drawer_layout)
         navView = findViewById(R.id.nav_view)
@@ -90,6 +95,17 @@ class HomeActivity : AppCompatActivity() {
         Common.setSpanString("Chao ", Common.currentServerUser!!.name,text_user)
 
         menuCLick = R.id.nav_category // Dafault
+    }
+
+    private fun subscribeToTopic(newOrderTopic: String) {
+        FirebaseMessaging.getInstance().subscribeToTopic(newOrderTopic).addOnFailureListener {
+            message -> Toast.makeText(this@HomeActivity,""+message.message,Toast.LENGTH_SHORT).show()
+        }
+            .addOnCompleteListener { task ->
+                if(!task.isSuccessful)
+                    Toast.makeText(this@HomeActivity,"Lắng nghe topic thất bại !",Toast.LENGTH_SHORT).show()
+            }
+
     }
 
     private fun singOut() {

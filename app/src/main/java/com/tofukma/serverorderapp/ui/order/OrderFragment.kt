@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
@@ -20,7 +21,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.ktx.Firebase
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
@@ -28,7 +33,6 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import com.tofukma.serverorderapp.R
-import com.tofukma.serverorderapp.SizeAddonEditActivity
 import com.tofukma.serverorderapp.adapter.MyOrderAdapter
 import com.tofukma.serverorderapp.callback.IMyButtonCallback
 import com.tofukma.serverorderapp.common.BottomSheetOrderFragment
@@ -36,7 +40,16 @@ import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.common.MySwipeHelper
 import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
 import com.tofukma.serverorderapp.eventbus.LoadOrderEvent
+import com.tofukma.serverorderapp.model.FCMSendData
 import com.tofukma.serverorderapp.model.OrderModel
+import com.tofukma.serverorderapp.model.TokenModel
+import com.tofukma.serverorderapp.remote.IFCMService
+import com.tofukma.serverorderapp.remote.RetrofitFCMClient
+import com.tofukma.serverorderapp.services.MyFCMServices
+import dmax.dialog.SpotsDialog
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_order.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -45,6 +58,9 @@ import java.lang.StringBuilder
 
 class OrderFragment : Fragment()
 {
+    private val compositeDiposable = CompositeDisposable()
+    lateinit var ifcmService: IFCMService
+
     lateinit var recycler_order:RecyclerView
     lateinit var layoutAnimationController:LayoutAnimationController
     lateinit var orderViewModel: OrderViewModel
@@ -74,6 +90,8 @@ class OrderFragment : Fragment()
         return root
     }
     private fun initView(root:View){
+
+        ifcmService = RetrofitFCMClient.getInstance().create(IFCMService::class.java)
 
         setHasOptionsMenu(true)
 
@@ -317,11 +335,66 @@ class OrderFragment : Fragment()
                         Toast.LENGTH_SHORT).show() }
                     .addOnSuccessListener {
 
+                        val dialog = SpotsDialog.Builder().setContext(context!!).setCancelable(false).build()
+                        dialog.show()
+
+                        // Load token
+                        FirebaseDatabase.getInstance().getReference(Common.TOKEN_REF).child(orderModel.userId!!)
+                            .addListenerForSingleValueEvent(object: ValueEventListener{
+                                override fun onCancelled(p0: DatabaseError) {
+                                    dialog.dismiss()
+                                    Toast.makeText(context,""+p0.message,Toast.LENGTH_SHORT).show()
+                                }
+
+                                override fun onDataChange(p0: DataSnapshot) {
+                                    if(p0.exists())
+                                    {
+                                        val tokenModel = p0.getValue(TokenModel::class.java)
+                                        Log.d("Token", tokenModel.toString())
+                                        val notiData = HashMap<String,String>()
+                                        notiData.put(Common.NOTI_TITLE,"Đơn của bạn đã được cập nhật ")
+                                        notiData.put(Common.NOTI_CONTENT,StringBuilder("Đơn của bạn ")
+                                            .append(orderModel.key)
+                                            .append("đã được cập nhật ")
+                                            .append(Common.convertStatusToString(status)).toString()
+                                        )
+                                        val sendData = FCMSendData(tokenModel!!.token!!,notiData)
+
+                                        compositeDiposable.add(ifcmService.sendNotification(sendData)
+                                            .subscribeOn(Schedulers.io())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe({
+                                                fcmResponse ->
+                                                if(fcmResponse.success == 1){
+                                                    Toast.makeText(context!!, "Cập nhật đơn hàng thành công ",
+                                                        Toast.LENGTH_SHORT).show()
+                                                    dialog.dismiss()
+                                                }
+                                                else {
+                                                    Toast.makeText(context!!, "Không gửi được thông báo",
+                                                        Toast.LENGTH_SHORT).show()
+                                                }
+                                            },
+                                                {
+                                                    t ->
+                                                    dialog.dismiss()
+                                                    Toast.makeText(context!!,""+t.message,Toast.LENGTH_SHORT).show()
+                                                }
+                                                )
+                                        )
+
+                                    }else {
+                                        dialog.dismiss()
+                                        Toast.makeText(context,"Không tìm thấy Token ",Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+
+                            })
+
                         adapter!!.removeItem(pos)
                         adapter!!.notifyItemRemoved(pos)
                         updateTextCounter()
-                        Toast.makeText(context!!, "Order success",
-                            Toast.LENGTH_SHORT).show()
+
                     }
             }
     }
@@ -357,6 +430,7 @@ class OrderFragment : Fragment()
             EventBus.getDefault().removeStickyEvent(LoadOrderEvent::class.java)
         if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this)
+        compositeDiposable.clear()
         super.onStop()
     }
 
