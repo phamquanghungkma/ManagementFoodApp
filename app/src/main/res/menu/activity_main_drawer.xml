@@ -19,6 +19,13 @@
 
 
     </group>
+
+    <group >
+        <item
+            android:id="@+id/nav_shipper"
+            android:icon="@drawable/ic_baseline_motorcycle_24"
+            android:title="@string/menu_shipper" />
+    </group>
     <group>
         <item
             android:id="@+id/nav_sign_out"

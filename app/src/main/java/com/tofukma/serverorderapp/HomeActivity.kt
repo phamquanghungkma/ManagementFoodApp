@@ -54,7 +54,7 @@ class HomeActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_category, R.id.nav_food_list, R.id.nav_order
+                R.id.nav_category, R.id.nav_food_list, R.id.nav_order,R.id.nav_shipper
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -81,6 +81,13 @@ class HomeActivity : AppCompatActivity() {
                     if (menuCLick != p0.itemId)
                     {
                         navController.navigate(R.id.nav_order)
+                    }
+                }
+                else if(p0.itemId == R.id.nav_shipper)
+                {
+                    if (menuCLick != p0.itemId)
+                    {
+                        navController.navigate(R.id.nav_shipper)
                     }
                 }
                 menuCLick != p0!!.itemId

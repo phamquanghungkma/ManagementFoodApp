@@ -28,6 +28,7 @@ import kotlin.random.Random
 
 object Common {
 
+    val SHIPPER_REF: String = "Shippers"
     val ORDER_REF: String = "Order"
     var foodSelected: FoodModel ?= null
     var categorySelected: CategoryModel?= null
@@ -109,11 +110,14 @@ object Common {
             notificationManager.createNotificationChannel(notificationChannel)
 
         }
+        //// Apply the layouts to the notification
         val builder = NotificationCompat.Builder(context,NOTIFICATION_CHANNEL_ID)
 
-        builder.setContentTitle(title!!).setContentText(content!!).setAutoCancel(true)
-            .setSmallIcon(R.mipmap.ic_launcher_round)
-            .setLargeIcon(BitmapFactory.decodeResource(context.resources,R.drawable.ic_baseline_restaurant_menu_24))
+        builder.setContentTitle(title!!)
+                .setContentText(content!!).setAutoCancel(true)
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setLargeIcon(BitmapFactory.decodeResource(context.resources,R.drawable.ic_baseline_restaurant_menu_24))
+
         if(pendingIntent != null)
             builder.setContentIntent(pendingIntent)
 
