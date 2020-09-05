@@ -41,7 +41,7 @@ public class MyShipperAdapter (internal var context: Context, internal var shipp
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         //Khi xử lý sự kiện người dùng click vào một item trong RecyclerView chúng ta nên xử lý bên
         // trong onCreateViewHolder(…)
-        val itemView = LayoutInflater.from(context).inflate(R.layout.layout_shipper,parent,false)
+        val itemView = LayoutInflater.from(context).inflate(R.layout.layout_shipper2,parent,false)
         return MyViewHolder(itemView)
     }
 
