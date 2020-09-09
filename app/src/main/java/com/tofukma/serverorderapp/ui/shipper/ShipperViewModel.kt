@@ -1,5 +1,8 @@
 package com.tofukma.serverorderapp.ui.shipper
 
+import android.app.AlertDialog
+import android.widget.Button
+import android.widget.RadioButton
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -9,6 +12,7 @@ import com.google.firebase.database.ValueEventListener
 import com.tofukma.serverorderapp.callback.IShipperLoadCallbackListener
 import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.model.CategoryModel
+import com.tofukma.serverorderapp.model.OrderModel
 import com.tofukma.serverorderapp.model.ShipperMOdel
 
 class ShipperViewModel : ViewModel(), IShipperLoadCallbackListener {
@@ -64,4 +68,19 @@ class ShipperViewModel : ViewModel(), IShipperLoadCallbackListener {
             messageError.value = message
     }
 
+    override fun onShipperLoadSuccess(
+        pos: Int,
+        oderModel: OrderModel?,
+        shipperList: List<ShipperMOdel>?,
+        dialog: AlertDialog,
+        ok: Button?,
+        cancel: Button?,
+        rdi_shipping: RadioButton?,
+        rdi_shipped: RadioButton?,
+        rdi_cancelled: RadioButton?,
+        rdi_delete: RadioButton?,
+        rdi_restore_placed: RadioButton?
+    ) {
+        //do nothing
+    }
 }
