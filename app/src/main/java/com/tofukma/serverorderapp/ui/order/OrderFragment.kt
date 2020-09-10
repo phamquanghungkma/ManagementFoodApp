@@ -529,11 +529,12 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         override fun onShipperLoadSuccess(shipperList: List<ShipperMOdel>) {
         //do anything
     }
+
     override fun onShipperLoadSuccess(
         pos: Int,
         oderModel: OrderModel?,
         shipperList: List<ShipperMOdel>?,
-        dialog: AlertDialog,
+        dialog: android.app.AlertDialog,
         ok: Button?,
         cancel: Button?,
         rdi_shipping: RadioButton?,
@@ -542,14 +543,14 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         rdi_delete: RadioButton?,
         rdi_restore_placed: RadioButton?
     ) {
-       if(recycle_shipper !=null){
-           recycle_shipper!!.setHasFixedSize(true)
-           val layoutManager = LinearLayoutManager(context)
-           recycle_shipper!!.layoutManager = layoutManager
-           recycle_shipper!!.addItemDecoration(DividerItemDecoration(context,layoutManager.orientation))
-           myShipperSelectedAdapter = MyShipperSelectedAdapter(context!!,shipperList!!)
-           recycle_shipper!!.adapter = myShipperSelectedAdapter
-       }
+        if(recycle_shipper !=null){
+            recycle_shipper!!.setHasFixedSize(true)
+            val layoutManager = LinearLayoutManager(context)
+            recycle_shipper!!.layoutManager = layoutManager
+            recycle_shipper!!.addItemDecoration(DividerItemDecoration(context,layoutManager.orientation))
+            myShipperSelectedAdapter = MyShipperSelectedAdapter(context!!,shipperList!!)
+            recycle_shipper!!.adapter = myShipperSelectedAdapter
+        }
         showDialog(pos,oderModel!!,dialog!!,ok!!,cancel!!,rdi_shipping,rdi_shipped,rdi_cancelled,rdi_delete,rdi_restore_placed )
     }
 
