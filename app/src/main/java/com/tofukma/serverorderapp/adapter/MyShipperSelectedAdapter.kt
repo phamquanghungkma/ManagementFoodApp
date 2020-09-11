@@ -19,7 +19,7 @@ public class MyShipperSelectedAdapter (internal var context: Context, internal v
     :RecyclerView.Adapter<MyShipperSelectedAdapter.MyViewHolder>(){
     var lastCheckedImageView:ImageView?= null
     var selectedShipper:ShipperMOdel?=null
-private set
+    private set
     inner class MyViewHolder (itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
 

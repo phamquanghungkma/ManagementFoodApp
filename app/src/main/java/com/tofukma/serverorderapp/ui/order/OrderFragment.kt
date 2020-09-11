@@ -124,8 +124,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                     Color.parseColor("#9b0000"),
                     object: IMyButtonCallback {
                         override fun onClick(pos: Int) {
-
-
                         }
                     })
                 )
@@ -136,7 +134,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                     Color.parseColor("#560027"),
                     object: IMyButtonCallback {
                         override fun onClick(pos: Int) {
-
                             Dexter.withActivity(activity)
                                 .withPermission(android.Manifest.permission.CALL_PHONE)
                                 .withListener(object : PermissionListener{
@@ -159,7 +156,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                                         Toast.makeText(context, "Ban phai chap nhan" + response!!.permissionName,
                                             Toast.LENGTH_SHORT).show()
                                     }
-
                                 }).check()
                         }
                     }))
@@ -243,10 +239,11 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
             rdi_delete = layout_dialog.findViewById<View>(R.id.rdi_delete) as RadioButton
             rdi_restore_placed = layout_dialog.findViewById<View>(R.id.rdi_restore_placed) as RadioButton
         }
-        else if(orderModel.orderStatus == 0) //add when shippung order status
+        else if(orderModel.orderStatus == 0)
         {
             layout_dialog = LayoutInflater.from(context!!)
                 .inflate(R.layout.layout_dialog_shipping, null)
+            recycle_shipper = layout_dialog.findViewById(R.id.recycler_shipper) as RecyclerView//add when shippung order status
             builder = AlertDialog.Builder(context!!,
                 android.R.style.Theme_Material_Light_NoActionBar_Fullscreen)
                 .setView(layout_dialog)
@@ -352,7 +349,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
             }
             else if(rdiShipping != null && rdiShipping.isChecked)
             {
-
                 var shipperMOdel:ShipperMOdel?=null
                 if(myShipperSelectedAdapter !=null){
                     shipperMOdel = myShipperSelectedAdapter!!.selectedShipper
