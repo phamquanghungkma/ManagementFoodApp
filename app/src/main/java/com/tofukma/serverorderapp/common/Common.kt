@@ -28,6 +28,7 @@ import kotlin.random.Random
 
 object Common {
 
+    val SHIPPING_ORDER_REF: String="ShippingOrder"
     val SHIPPER_REF: String = "Shippers"
     val ORDER_REF: String = "Order"
     var foodSelected: FoodModel ?= null

@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -43,10 +44,7 @@ import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.common.MySwipeHelper
 import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
 import com.tofukma.serverorderapp.eventbus.LoadOrderEvent
-import com.tofukma.serverorderapp.model.FCMSendData
-import com.tofukma.serverorderapp.model.OrderModel
-import com.tofukma.serverorderapp.model.ShipperMOdel
-import com.tofukma.serverorderapp.model.TokenModel
+import com.tofukma.serverorderapp.model.*
 import com.tofukma.serverorderapp.remote.IFCMService
 import com.tofukma.serverorderapp.remote.RetrofitFCMClient
 import com.tofukma.serverorderapp.services.MyFCMServices
@@ -354,15 +352,17 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
             }
             else if(rdiShipping != null && rdiShipping.isChecked)
             {
-                //updateOrder(pos, orderModel, 1)
+
                 var shipperMOdel:ShipperMOdel?=null
                 if(myShipperSelectedAdapter !=null){
                     shipperMOdel = myShipperSelectedAdapter!!.selectedShipper
                     if(shipperMOdel != null){
+                        createShippingOrder(pos,shipperMOdel,orderModel,dialog)
+                    }else{
                         Toast.makeText(context,"Xin vui long chon giao hang",Toast.LENGTH_SHORT).show()
                     }
                 }
-                dialog.dismiss()
+
             }
             else if(rdiShipped != null && rdiShipped.isChecked)
             {
@@ -378,6 +378,34 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
             {
                 deleteOrder(pos, orderModel)
                 dialog.dismiss()
+            }
+        }
+    }
+
+    private fun createShippingOrder(
+        pos: Int,
+        shipperModel: ShipperMOdel,
+        orderModel: OrderModel,
+        dialog: AlertDialog) {
+val shippingOrder = ShippingOrderModel()
+        shippingOrder.shipperName = shipperModel.name
+        shippingOrder.shipperPhone = shipperModel.phone
+        shippingOrder.orderModel = orderModel
+        shippingOrder.isStartTrip = false
+        shippingOrder.currentLat = -1.0
+        shippingOrder.currentLng = -1.0
+    FirebaseDatabase.getInstance()
+        .getReference(Common.SHIPPING_ORDER_REF)
+        .push().setValue(shippingOrder)
+        .addOnFailureListener{e:Exception -> dialog.dismiss()
+        Toast.makeText(context,""+e.message,Toast.LENGTH_SHORT).show()
+        }
+        .addOnCompleteListener{
+            task: Task<Void> ->
+            if(task.isSuccessful){
+                dialog.dismiss()
+                updateOrder(pos, orderModel, 1)
+                Toast.makeText(context,"Đơn hàng được gửi cho giao hàng"+shipperModel.name,Toast.LENGTH_SHORT).show()
             }
         }
     }
