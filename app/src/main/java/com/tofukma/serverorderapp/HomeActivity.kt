@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.eventbus.CategoryClick
@@ -45,6 +46,8 @@ class HomeActivity : AppCompatActivity() {
 
         // lắng nghe Notification Topic đc gửi từ Client
         subscribeToTopic(Common.getNewOrderTopic())
+
+        updateToken()
 
 
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -102,6 +105,16 @@ class HomeActivity : AppCompatActivity() {
         Common.setSpanString("Chao ", Common.currentServerUser!!.name,text_user)
 
         menuCLick = R.id.nav_category // Dafault
+    }
+
+    private fun updateToken() {
+        FirebaseInstanceId.getInstance()
+            .instanceId
+            .addOnFailureListener { e -> Toast.makeText(this@HomeActivity,""+e.message,Toast.LENGTH_SHORT).show() }
+            .addOnSuccessListener { instanceIdResult ->
+                Common.updateToken(this@HomeActivity,instanceIdResult.token,true,false)
+
+            }
     }
 
     private fun subscribeToTopic(newOrderTopic: String) {

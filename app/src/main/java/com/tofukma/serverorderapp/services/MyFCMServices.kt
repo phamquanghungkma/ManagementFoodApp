@@ -8,7 +8,7 @@ import java.util.*
 class MyFCMServices : FirebaseMessagingService(){
     override fun onNewToken(p0: String) {
         super.onNewToken(p0)
-        Common.updateToken(this,p0)
+        Common.updateToken(this,p0,true,false)
         // Khi một thiết bị cài đặt ứng dụng thì nó sẽ tạo ra một device_token, ta sẽ gửi device_token đó lên Firebase
     }
 

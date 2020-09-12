@@ -48,6 +48,7 @@ import com.tofukma.serverorderapp.model.*
 import com.tofukma.serverorderapp.remote.IFCMService
 import com.tofukma.serverorderapp.remote.RetrofitFCMClient
 import com.tofukma.serverorderapp.services.MyFCMServices
+import com.tofukma.shippingapp.model.TokenModel
 import dmax.dialog.SpotsDialog
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -383,7 +384,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         shipperModel: ShipperMOdel,
         orderModel: OrderModel,
         dialog: AlertDialog) {
-val shippingOrder = ShippingOrderModel()
+        val shippingOrder = ShippingOrderModel()
         shippingOrder.shipperName = shipperModel.name
         shippingOrder.shipperPhone = shipperModel.phone
         shippingOrder.orderModel = orderModel
@@ -393,14 +394,71 @@ val shippingOrder = ShippingOrderModel()
     FirebaseDatabase.getInstance()
         .getReference(Common.SHIPPING_ORDER_REF)
         .push().setValue(shippingOrder)
-        .addOnFailureListener{e:Exception -> dialog.dismiss()
-        Toast.makeText(context,""+e.message,Toast.LENGTH_SHORT).show()
+        .addOnFailureListener{e:Exception ->
+            dialog.dismiss()
+            Toast.makeText(context,""+e.message,Toast.LENGTH_SHORT).show()
+
         }
         .addOnCompleteListener{
             task: Task<Void> ->
             if(task.isSuccessful){
                 dialog.dismiss()
-                updateOrder(pos, orderModel, 1)
+
+                FirebaseDatabase.getInstance().getReference(Common.TOKEN_REF).child(shipperModel.key!!)
+                    .addListenerForSingleValueEvent(object: ValueEventListener{
+                        override fun onCancelled(p0: DatabaseError) {
+                            dialog.dismiss()
+                            Toast.makeText(context,""+p0.message,Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onDataChange(p0: DataSnapshot) {
+                            if(p0.exists())
+                            {
+                                val tokenModel = p0.getValue(TokenModel::class.java)
+                                Log.d("Token", tokenModel.toString())
+                                val notiData = HashMap<String,String>()
+                                notiData.put(Common.NOTI_TITLE,"Bạn có đơn hàng mới cần ship ")
+                                notiData.put(Common.NOTI_CONTENT,StringBuilder("Đơn ship mới ")
+                                    .append(orderModel.userPhone)
+                                    .toString()
+                                )
+                                val sendData = FCMSendData(tokenModel!!.token!!,notiData)
+
+                                compositeDiposable.add(ifcmService.sendNotification(sendData)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe({
+                                            fcmResponse ->
+                                        if(fcmResponse.success == 1){
+                                           updateOrder(pos,orderModel,1)
+                                            dialog.dismiss()
+                                        }
+                                        else {
+                                            Toast.makeText(context!!, "Không gửi được thông báo! Đơn hàng không được cập nhật",
+                                                Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                        {
+                                                t ->
+                                            dialog.dismiss()
+                                            Toast.makeText(context!!,""+t.message,Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                )
+
+                            }else {
+                                dialog.dismiss()
+                                Toast.makeText(context,"Không tìm thấy Token ",Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                    })
+
+
+
+
+
+//                updateOrder(pos, orderModel, 1)
                 Toast.makeText(context,"Đơn hàng được gửi cho giao hàng"+shipperModel.name,Toast.LENGTH_SHORT).show()
             }
         }

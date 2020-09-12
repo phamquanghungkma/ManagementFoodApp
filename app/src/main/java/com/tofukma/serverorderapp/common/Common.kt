@@ -22,7 +22,7 @@ import com.tofukma.serverorderapp.R
 import com.tofukma.serverorderapp.model.CategoryModel
 import com.tofukma.serverorderapp.model.FoodModel
 import com.tofukma.serverorderapp.model.ServerUserModel
-import com.tofukma.serverorderapp.model.TokenModel
+import com.tofukma.shippingapp.model.TokenModel
 import java.lang.StringBuilder
 import kotlin.random.Random
 
@@ -82,11 +82,11 @@ object Common {
 
     }
 
-    fun updateToken(context: Context, token: String) {
+    fun updateToken(context: Context, token: String,isServerToken:Boolean,isShipperToken:Boolean) {
         FirebaseDatabase.getInstance()
             .getReference(Common.TOKEN_REF)
             .child(Common.currentServerUser!!.uid!!)
-            .setValue(TokenModel(currentServerUser!!.phone!!,token))
+            .setValue(TokenModel(currentServerUser!!.phone!!,token,isServerToken,isShipperToken))
             .addOnFailureListener { e -> Toast.makeText(context,""+e.message, Toast.LENGTH_SHORT).show() }
     }
 
