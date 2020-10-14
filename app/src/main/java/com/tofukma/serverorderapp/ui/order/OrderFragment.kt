@@ -35,6 +35,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import com.tofukma.serverorderapp.R
+import com.tofukma.serverorderapp.TrackingOrderActivity
 import com.tofukma.serverorderapp.adapter.MyOrderAdapter
 import com.tofukma.serverorderapp.adapter.MyShipperSelectedAdapter
 import com.tofukma.serverorderapp.callback.IMyButtonCallback
@@ -125,6 +126,19 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                     Color.parseColor("#9b0000"),
                     object: IMyButtonCallback {
                         override fun onClick(pos: Int) {
+
+                            val orderModel = (recycler_order.adapter as MyOrderAdapter)
+                                .getItemAtPosition(pos)
+                            if(orderModel.orderStatus == 1) //Shipping
+                            {
+                                Common.currentOrderSelected = orderModel
+                                startActivity(Intent(context!!,TrackingOrderActivity::class.java))
+                            }else{
+                                Toast.makeText(context, StringBuilder("Your order has been")
+                                    .append(Common.convertStatusToString(orderModel.orderStatus))
+                                    .append(". So you can't track directions"),
+                                    Toast.LENGTH_SHORT).show()
+                            }
                         }
                     })
                 )

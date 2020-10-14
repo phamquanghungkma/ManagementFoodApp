@@ -105,6 +105,19 @@ class HomeActivity : AppCompatActivity() {
         Common.setSpanString("Chao ", Common.currentServerUser!!.name,text_user)
 
         menuCLick = R.id.nav_category // Dafault
+
+        checkOpendOrderFragment()
+    }
+
+    private fun checkOpendOrderFragment() {
+        val isOpenNewOrder = intent.extras!!.getBoolean(Common.IS_OPEN_ACTIVITY_NEW_ORDER, false)
+        if(isOpenNewOrder)
+        {
+            navController.popBackStack();
+            navController.navigate(R.id.nav_order)
+            menuCLick = R.id.nav_order
+        }
+
     }
 
     private fun updateToken() {

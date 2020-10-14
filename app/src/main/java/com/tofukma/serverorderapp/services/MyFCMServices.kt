@@ -1,7 +1,9 @@
 package com.tofukma.serverorderapp.services
 
+import android.content.Intent
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.tofukma.serverorderapp.MainActivity
 import com.tofukma.serverorderapp.common.Common
 import java.util.*
 
@@ -17,8 +19,18 @@ class MyFCMServices : FirebaseMessagingService(){
 
         val dataRev = remoteMessage.data
         if(dataRev != null ){
-            Common.showNotification(this,
-                Random().nextInt(),dataRev[Common.NOTI_TITLE],dataRev[Common.NOTI_CONTENT],null)
+            if (dataRev[Common.NOTI_TITLE]!!.equals(" Đơn mới "))
+            {
+                var intent = Intent(this, MainActivity::class.java)
+                intent.putExtra(Common.IS_OPEN_ACTIVITY_NEW_ORDER, true)
+                Common.showNotification(this, Random().nextInt(),
+                    dataRev[Common.NOTI_TITLE],
+                    dataRev[Common.NOTI_CONTENT], intent)
+
+            }
+            else
+                Common.showNotification(this,
+                    Random().nextInt(),dataRev[Common.NOTI_TITLE],dataRev[Common.NOTI_CONTENT],null)
         }
     }
 

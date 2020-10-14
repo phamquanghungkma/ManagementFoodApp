@@ -45,6 +45,7 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
 //                   Log.e(TAG,"+1 oder")
                    val orderModel = itemSnapShot.getValue(OrderModel::class.java)
                    orderModel!!.key = itemSnapShot.key
+                   orderModel!!.orderNumber = itemSnapShot.key
                    tempList.add(orderModel)
                }
                 orderCallbackListener.onOrderLoadSuccess(tempList)

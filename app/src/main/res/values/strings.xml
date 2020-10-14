@@ -16,4 +16,5 @@
     <string name="menu_shipper">Shipper</string>
 
     <string name="menu_sign_out">Sign out</string>
+    <string name="title_activity_tracking_order">Map</string>
 </resources>

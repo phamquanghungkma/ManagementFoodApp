@@ -111,7 +111,9 @@ class MainActivity : AppCompatActivity() {
     private fun gotoHomeActivity(userModel: ServerUserModel) {
             dialog!!.dismiss()
             Common.currentServerUser = userModel
-            startActivity(Intent(this,HomeActivity::class.java))
+            val intent = Intent(this,HomeActivity::class.java)
+            intent.putExtra(Common.IS_OPEN_ACTIVITY_NEW_ORDER, intent.extras!!.getBoolean(Common.IS_OPEN_ACTIVITY_NEW_ORDER, false))
+            startActivity(intent)
             finish()
 
     }
