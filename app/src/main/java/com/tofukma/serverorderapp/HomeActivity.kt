@@ -93,6 +93,15 @@ class HomeActivity : AppCompatActivity() {
                         navController.navigate(R.id.nav_shipper)
                     }
                 }
+                else if(p0.itemId == R.id.nav_best_deals)
+                {
+                    if (menuCLick != p0.itemId)
+                    {
+                        navController.navigate(R.id.nav_best_deals)
+                    }
+                }
+
+
                 menuCLick != p0!!.itemId
 
                 return true
@@ -106,7 +115,7 @@ class HomeActivity : AppCompatActivity() {
 
         menuCLick = R.id.nav_category // Dafault
 
-        checkOpendOrderFragment()
+//        checkOpendOrderFragment()
     }
 
     private fun checkOpendOrderFragment() {
