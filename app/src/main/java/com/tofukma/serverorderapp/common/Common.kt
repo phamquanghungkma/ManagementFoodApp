@@ -20,16 +20,14 @@ import androidx.core.app.NotificationCompat
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.database.FirebaseDatabase
 import com.tofukma.serverorderapp.R
-import com.tofukma.serverorderapp.model.CategoryModel
-import com.tofukma.serverorderapp.model.FoodModel
-import com.tofukma.serverorderapp.model.OrderModel
-import com.tofukma.serverorderapp.model.ServerUserModel
+import com.tofukma.serverorderapp.model.*
 import com.tofukma.shippingapp.model.TokenModel
 import java.lang.StringBuilder
 import kotlin.random.Random
 
 object Common {
 
+    var bestDealsSelected: BestDealsModel?=null
     val BEST_DEALS: String="BestDeals"
     val IS_OPEN_ACTIVITY_NEW_ORDER: String?="IsOpenActivityOrder"
     var currentOrderSelected: OrderModel?=null
