@@ -407,7 +407,8 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         shippingOrder.currentLng = -1.0
     FirebaseDatabase.getInstance()
         .getReference(Common.SHIPPING_ORDER_REF)
-        .push().setValue(shippingOrder)
+        .child(orderModel!!.key!!)
+        .setValue(shippingOrder)
         .addOnFailureListener{e:Exception ->
             dialog.dismiss()
             Toast.makeText(context,""+e.message,Toast.LENGTH_SHORT).show()
