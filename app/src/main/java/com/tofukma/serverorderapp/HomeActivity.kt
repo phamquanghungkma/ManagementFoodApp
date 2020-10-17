@@ -100,7 +100,13 @@ class HomeActivity : AppCompatActivity() {
                         navController.navigate(R.id.nav_best_deals)
                     }
                 }
-
+                else if(p0.itemId == R.id.nav_most_popular)
+                {
+                    if (menuCLick != p0.itemId)
+                    {
+                        navController.navigate(R.id.nav_most_popular)
+                    }
+                }
 
                 menuCLick != p0!!.itemId
 

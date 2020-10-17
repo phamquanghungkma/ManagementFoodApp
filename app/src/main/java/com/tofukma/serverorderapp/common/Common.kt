@@ -27,6 +27,7 @@ import kotlin.random.Random
 
 object Common {
 
+    val MOST_POPULAR: String ="MostPopular"
     var bestDealsSelected: BestDealsModel?=null
     val BEST_DEALS: String="BestDeals"
     val IS_OPEN_ACTIVITY_NEW_ORDER: String?="IsOpenActivityOrder"
