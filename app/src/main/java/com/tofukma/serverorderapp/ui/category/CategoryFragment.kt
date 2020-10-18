@@ -99,6 +99,18 @@ class CategoryFragment : Fragment() {
                 buffer: MutableList<MyButton>
             ) {
                 buffer.add(MyButton(context!!,
+                    "Delete",
+                    30,
+                    0,
+                    Color.parseColor("#333639"),
+                    object: IMyButtonCallback {
+                        override fun onClick(pos: Int) {
+                            Common.categorySelected = categoryModels[pos];
+                            showDeleteDialog();
+                        }
+                    }))
+
+                buffer.add(MyButton(context!!,
                     "Update",
                     30,
                     0,
@@ -112,6 +124,34 @@ class CategoryFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun showDeleteDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(context!!)
+        builder.setTitle("Delete Category")
+        builder.setMessage("Do you really want to delete this category")
+
+        builder.setNegativeButton("CANCEL"){ dialogInterface, _ -> dialogInterface.dismiss() }
+        builder.setPositiveButton("Delete"){dialogInterface, _ ->
+
+            deleteDialog()
+        }
+
+        val deleteDialog = builder.create()
+        deleteDialog.show()
+
+    }
+
+    private fun deleteDialog() {
+        FirebaseDatabase.getInstance()
+            .getReference(Common.CATEGORY_REF)
+            .child(Common.categorySelected!!.menu_id!!)
+            .removeValue()
+            .addOnFailureListener { e -> Toast.makeText(context, ""+e.message,Toast.LENGTH_SHORT).show() }
+            .addOnCompleteListener { task ->
+                categoryViewModel!!.loadCategory()
+                EventBus.getDefault().postSticky(ToastEvent(false,false))
+            }
     }
 
     private fun showUpdateDialog() {
@@ -156,7 +196,7 @@ class CategoryFragment : Fragment() {
                         val progress = 100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount
                         dialog.setMessage("Uploaded $progress%")
                     }
-                    .addOnSuccessListener { taskSnapshot -> 
+                    .addOnSuccessListener { taskSnapshot ->
                         dialogInterface.dismiss()
                         imageFolder.downloadUrl.addOnSuccessListener { uri ->
                             updateDate["image"] = uri.toString()
