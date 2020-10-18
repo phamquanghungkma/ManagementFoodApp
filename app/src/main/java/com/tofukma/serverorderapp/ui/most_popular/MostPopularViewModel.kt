@@ -25,12 +25,13 @@ class MostPopularViewModel : ViewModel(), IMostPopularCallbackListen {
         if (mostPopularListMutable == null)
         {
             mostPopularListMutable = MutableLiveData()
+
         }
         loadMostPopulars()
         return this.mostPopularListMutable!!
     }
 
-    private fun loadMostPopulars() {
+    fun loadMostPopulars() {
         val tempList = ArrayList<MostPopularModel>()
         val mostPopularRef = FirebaseDatabase.getInstance().getReference(Common.MOST_POPULAR)
         mostPopularRef.addListenerForSingleValueEvent(object: ValueEventListener {
