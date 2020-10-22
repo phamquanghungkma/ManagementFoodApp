@@ -33,7 +33,10 @@ class BestDealsViewModel : ViewModel(), IBestDealsCallBackListener {
 
      fun loadBestDeals() {
         val tempList = ArrayList<BestDealsModel>()
-        val bestDealsRef = FirebaseDatabase.getInstance().getReference(Common.BEST_DEALS)
+        val bestDealsRef = FirebaseDatabase.getInstance()
+            .getReference(Common.RESTAURANT_REF)
+            .child(Common.currentServerUser!!.restaurant!!)
+            .child(Common.BEST_DEALS)
         bestDealsRef.addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(error: DatabaseError) {
                 bestDealsCallBackListener.onListBestDealsLoadFailed((error.message))

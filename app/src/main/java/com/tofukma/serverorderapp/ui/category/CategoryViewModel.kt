@@ -1,5 +1,6 @@
 package com.tofukma.serverorderapp.ui.category
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -45,7 +46,11 @@ class CategoryViewModel : ViewModel(), ICategoryCallBackListener {
 
     fun loadCategory() {
         val tempList = ArrayList<CategoryModel>()
-        val categoryRef = FirebaseDatabase.getInstance().getReference(Common.CATEGORY_REF)
+        val categoryRef = FirebaseDatabase.getInstance()
+            .getReference(Common.RESTAURANT_REF)
+            .child(Common.currentServerUser!!.restaurant!!)
+            .child(Common.CATEGORY_REF)
+        //Log.d("REF",categoryRef.toString())
         categoryRef.addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(error: DatabaseError) {
                 categoryCallBackListener.onCategoryLoadFailed((error.message))

@@ -83,7 +83,9 @@ class TrackingOrderActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private fun checkOrderFromFirebase() {
         FirebaseDatabase.getInstance()
-            .getReference(Common.SHIPPING_ORDER_REF)
+            .getReference(Common.RESTAURANT_REF)
+            .child(Common.currentServerUser!!.restaurant!!)
+            .child(Common.SHIPPING_ORDER_REF)
             .child(Common.currentOrderSelected!!.orderNumber!!)
             .addListenerForSingleValueEvent(object:ValueEventListener{
                 override fun onDataChange(p0: DataSnapshot) {
@@ -105,6 +107,7 @@ class TrackingOrderActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     override fun onSingleShippingOrderSuccess(shippingOrderModel: ShippingOrderModel) {
+
         val locationOrder = LatLng(shippingOrderModel.orderModel!!.lat,
             shippingOrderModel.orderModel!!.lng)
         val locationShipper = LatLng(shippingOrderModel.currentLat,shippingOrderModel.currentLng)
@@ -186,4 +189,13 @@ class TrackingOrderActivity : AppCompatActivity(), OnMapReadyCallback,
                 throwable.printStackTrace()
             }))
     }
+
+//    private fun subscribeShipperMove(curentShippingOrder:ShippingOrderModel){
+//        var shippingRef = FirebaseDatabase.getInstance()
+//            .getReference(Common.RESTAURANT_REF)
+//            .child(Common.currentServerUser!!.restaurant!!)
+//            .child(Common.SHIPPING_ORDER_REF)
+//            .child(curentShippingOrder!!.key!!)
+//        shippingRef.addValueEventListener(this)
+//    }
 }

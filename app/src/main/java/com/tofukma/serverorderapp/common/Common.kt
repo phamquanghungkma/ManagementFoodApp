@@ -27,6 +27,7 @@ import kotlin.random.Random
 
 object Common {
 
+    val RESTAURANT_REF: String = "Restaurant"
     val IMAGE_URL: String="IMAGE_URL"
     val IS_SEND_IMAGE: String="IS_SEND_IMAGE"
     var mostPopularSelected: MostPopularModel?=null
@@ -40,7 +41,7 @@ object Common {
     val ORDER_REF: String = "Order"
     var foodSelected: FoodModel ?= null
     var categorySelected: CategoryModel?= null
-    val CATEGORY_REF: String = "Category"
+    const val CATEGORY_REF: String = "Category"
     val SERVER_REF = "Server"
     var currentServerUser: ServerUserModel?= null
     val FULL_WIDTH_COLUMN: Int = 1
@@ -171,7 +172,11 @@ object Common {
     }
 
     fun getNewsTopic(): String {
-        return StringBuilder("/topics/news").toString()
+        return StringBuilder("/topics/")
+            .append(Common.currentServerUser!!.restaurant!!)
+            .append("_")
+            .append("news")
+            .toString()
     }
 
 }

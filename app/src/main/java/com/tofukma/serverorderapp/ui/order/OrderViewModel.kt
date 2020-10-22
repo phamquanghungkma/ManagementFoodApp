@@ -32,7 +32,9 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
 
         val tempList  : MutableList<OrderModel> = ArrayList()
         val orderRef = FirebaseDatabase.getInstance()
-            .getReference(Common.ORDER_REF)
+            .getReference(Common.RESTAURANT_REF)
+            .child(Common.currentServerUser!!.restaurant!!)
+            .child(Common.ORDER_REF)
             .orderByChild("orderStatus")
             .equalTo(status.toDouble())
         orderRef.addListenerForSingleValueEvent(object :ValueEventListener {
