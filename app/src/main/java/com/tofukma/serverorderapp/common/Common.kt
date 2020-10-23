@@ -178,5 +178,22 @@ object Common {
             .append("news")
             .toString()
     }
+    fun getBearing(begin: LatLng, end: LatLng): Float {
+        val lat = Math.abs(begin.latitude - end.longitude)
+        val lng = Math.abs(begin.longitude - end.longitude)
 
+        if(begin.latitude < end.latitude && begin.longitude < end.longitude)
+            return Math.toDegrees(Math.atan(lng/lat))
+                .toFloat()
+
+        else  if(begin.latitude >=  end.latitude && begin.longitude < end.longitude)
+            return (90 - Math.toDegrees(Math.atan(lng/lat))+90).toFloat()
+
+        else if(begin.latitude >=  end.latitude && begin.longitude >= end.longitude)
+            return (Math.toDegrees(Math.atan(lng/lat))+180).toFloat()
+
+        else if(begin.latitude < end.latitude && begin.longitude >= end.longitude)
+            return (90 - Math.toDegrees(Math.atan(lng/lat))+270).toFloat()
+        return (-1).toFloat()
+    }
 }
