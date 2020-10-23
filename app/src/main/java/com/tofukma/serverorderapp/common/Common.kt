@@ -86,7 +86,11 @@ object Common {
     }
     fun getNewOrderTopic(): String {
 
-        return StringBuilder("/topics/new_order").toString()
+        return StringBuilder("/topics/")
+            .append(Common.currentServerUser!!.restaurant)
+            .append("_")
+            .append("new_order")
+            .toString()
 
     }
 

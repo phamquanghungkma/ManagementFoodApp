@@ -144,7 +144,9 @@ class CategoryFragment : Fragment() {
 
     private fun deleteDialog() {
         FirebaseDatabase.getInstance()
-            .getReference(Common.CATEGORY_REF)
+            .getReference(Common.RESTAURANT_REF)
+            .child(Common.currentServerUser!!.restaurant!!)
+            .child(Common.CATEGORY_REF)
             .child(Common.categorySelected!!.menu_id!!)
             .removeValue()
             .addOnFailureListener { e -> Toast.makeText(context, ""+e.message,Toast.LENGTH_SHORT).show() }
