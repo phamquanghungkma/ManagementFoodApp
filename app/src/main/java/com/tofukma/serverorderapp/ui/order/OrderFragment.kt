@@ -59,6 +59,9 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.StringBuilder
+//import java.util.jar.Manifest
+import android.Manifest
+import com.tofukma.serverorderapp.eventbus.PrintOrderEvent
 
 class OrderFragment : Fragment(), IShipperLoadCallbackListener {
     private val compositeDiposable = CompositeDisposable()
@@ -120,7 +123,43 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                 buffer: MutableList<MyButton>
             ) {
                 buffer.add(MyButton(context!!,
-                    "Trạng thái",
+                    "In",
+                    30,
+                    0,
+                    Color.parseColor("#8b0010"),
+                    object: IMyButtonCallback {
+                        override fun onClick(pos: Int) {
+
+                            Dexter.withActivity(activity)
+                                .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                .withListener(object:PermissionListener {
+                                    override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+                                        EventBus.getDefault().postSticky(
+                                            PrintOrderEvent(
+                                            StringBuilder(Common.getAppPath(activity!!))
+                                                .append(Common.FILE_PRINT).toString(),
+                                            adapter!!.getItemAtPosition(pos)
+                                        )
+                                        )
+                                    }
+
+                                    override fun onPermissionRationaleShouldBeShown(
+                                        permission: PermissionRequest?,
+                                        token: PermissionToken?
+                                    ) {
+
+                                    }
+
+                                    override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                                        Toast.makeText(context,"You should accept this permission", Toast.LENGTH_SHORT).show()
+                                    }
+
+                                }).check()
+                        }
+                    }))
+
+                buffer.add(MyButton(context!!,
+                    "TT",
                     30,
                     0,
                     Color.parseColor("#9b0000"),
@@ -140,8 +179,8 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                                     Toast.LENGTH_SHORT).show()
                             }
                         }
-                    })
-                )
+                    }))
+
                 buffer.add(MyButton(context!!,
                     "Gọi",
                     30,
@@ -176,7 +215,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                     }))
 
                 buffer.add(MyButton(context!!,
-                    "Di chuyển",
+                    "DC",
                     30,
                     0,
                     Color.parseColor("#12005e"),
@@ -404,6 +443,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         orderModel: OrderModel,
         dialog: AlertDialog) {
         val shippingOrder = ShippingOrderModel()
+        shippingOrder.restaurantKey = Common.currentServerUser!!.restaurant!!
         shippingOrder.shipperName = shipperModel.name
         shippingOrder.shipperPhone = shipperModel.phone
         shippingOrder.orderModel = orderModel
@@ -475,8 +515,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                         }
 
                     })
-
-
 
 
 

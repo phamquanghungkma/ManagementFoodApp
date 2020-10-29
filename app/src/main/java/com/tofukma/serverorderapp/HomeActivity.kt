@@ -1,15 +1,21 @@
 package com.tofukma.serverorderapp
 
 import android.app.Activity
+import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -25,29 +31,47 @@ import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.itextpdf.text.*
+import com.itextpdf.text.pdf.BaseFont
+import com.itextpdf.text.pdf.PdfWriter
+import com.tofukma.serverorderapp.adapter.PdfDocumentApdapter
 import com.tofukma.serverorderapp.common.Common
+import com.tofukma.serverorderapp.common.PDFUtils
 import com.tofukma.serverorderapp.eventbus.CategoryClick
 import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
+import com.tofukma.serverorderapp.eventbus.PrintOrderEvent
 import com.tofukma.serverorderapp.eventbus.ToastEvent
+import com.tofukma.serverorderapp.model.CartItem
 import com.tofukma.serverorderapp.model.FCMResponse
 import com.tofukma.serverorderapp.model.FCMSendData
+import com.tofukma.serverorderapp.model.OrderModel
 import com.tofukma.serverorderapp.remote.IFCMService
 import com.tofukma.serverorderapp.remote.RetrofitFCMClient
+import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Action
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.schedulers.Schedulers.io
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.Exception
 import java.lang.StringBuilder
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.properties.Delegates
 
 class HomeActivity : AppCompatActivity() {
 
@@ -65,6 +89,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var storage:FirebaseStorage
     private var storageReference:StorageReference?=null
 
+    private lateinit var dialog: AlertDialog
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -79,6 +105,7 @@ class HomeActivity : AppCompatActivity() {
 
         updateToken()
 
+        init()
 
         drawerLayout = findViewById(R.id.drawer_layout)
         navView = findViewById(R.id.nav_view)
@@ -158,6 +185,20 @@ class HomeActivity : AppCompatActivity() {
 
 //        checkOpendOrderFragment()
     }
+
+    private fun init(){
+        ifcmService = RetrofitFCMClient.getInstance().create(IFCMService::class.java)
+        storage = FirebaseStorage.getInstance()
+        storageReference = storage.reference
+        subscribeToTopic(Common.getNewOrderTopic())
+        updateToken()
+
+        dialog = AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setMessage("Xin chờ trong giây lát ")
+            .create()
+    }
+
 
     private fun showSendNewsDialog() {
         val builder = AlertDialog.Builder(this)
@@ -390,6 +431,155 @@ class HomeActivity : AppCompatActivity() {
                 imgUri = data.data
                 img_upload!!.setImageURI(imgUri)
             }
+        }
+    }
+
+    //Print
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    fun onPrintEventListener(event:PrintOrderEvent){
+        createPDFFILE(event.path, event.orderModel)
+    }
+
+    private fun createPDFFILE(path: String, orderModel: OrderModel) {
+//        dialog!!.show()
+        if(File(path).exists())
+            File(path).delete()
+        try {
+            val document = Document()
+            //Save
+            PdfWriter.getInstance(document,FileOutputStream(path))
+            //Open
+            document.open()
+
+            //Setting
+            document.pageSize = (PageSize.A4)
+            document.addCreationDate()
+            document.addAuthor("ServerOrder")
+            document.addCreator(Common.currentServerUser!!.name)
+
+            //font setting
+            val colorAccent = BaseColor(0,153,204, 255)
+            val fontSize = 20.0f
+
+            //Custom font
+            val fontName = BaseFont.createFont("assets/fonts/brandon_medium.otf","UTF-8", BaseFont.EMBEDDED)
+
+            //create title of document
+            val titleFont = Font(fontName, 36.0f, Font.NORMAL, BaseColor.BLACK)
+            PDFUtils.addNewItem(document,"Chi tiet don hang", Element.ALIGN_CENTER, titleFont)
+
+            // Add more
+            val orderNumberFont = Font(fontName, fontSize, Font.NORMAL, colorAccent)
+            PDFUtils.addNewItem(document,"Order No: ", Element.ALIGN_LEFT, orderNumberFont)
+
+            val orderNumberValueFont = Font(fontName, fontSize, Font.NORMAL, BaseColor.BLACK)
+            PDFUtils.addNewItem(document, orderModel.key!! , Element.ALIGN_LEFT, orderNumberValueFont)
+            PDFUtils.addLineSeparator(document)
+
+            // Date
+            PDFUtils.addNewItem(document, "Thời gian đặt ", Element.ALIGN_LEFT, orderNumberFont)
+            PDFUtils.addNewItem(document, SimpleDateFormat("dd-MM-yyyy").format(orderModel.createDate),
+                Element.ALIGN_LEFT, orderNumberValueFont)
+            PDFUtils.addLineSeparator(document)
+
+            //Account name
+            PDFUtils.addNewItem(document, "Tên tài khoản", Element.ALIGN_LEFT, orderNumberFont)
+            PDFUtils.addNewItem(document, orderModel.userName!!, Element.ALIGN_LEFT, orderNumberValueFont)
+            PDFUtils.addLineSeparator(document)
+
+            //Product detail
+            PDFUtils.addLineSpace(document)
+            PDFUtils.addNewItem(document, "Product Detail", Element.ALIGN_LEFT, titleFont)
+            PDFUtils.addLineSeparator(document)
+
+            // Use Rxjava, fetch image from url and add to PDF
+            Observable.fromIterable(orderModel.carItemList)
+                .flatMap({ cartItem: CartItem -> Common.getBitmapFromUrl(this@HomeActivity, cartItem, document) })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(Consumer { cartItem -> // One next
+                    //Food Name
+                    PDFUtils.addNewItemWithLeftAndRight(
+                        document,
+                        cartItem.foodName!!,
+                        "(0.0%)",
+                        titleFont,
+                        orderNumberValueFont
+                    )
+                    //Food Size and Addon
+                    PDFUtils.addNewItemWithLeftAndRight(
+                        document,
+                        "Size",
+                        Common.formatSizeJsonToString(cartItem.foodSize!!),
+                        titleFont,
+                        orderNumberValueFont
+                    )
+                    PDFUtils.addNewItemWithLeftAndRight(
+                        document,
+                        "Addon",
+                        Common.formatAddonJsonToString(cartItem.foodAddon!!),
+                        titleFont,
+                        orderNumberValueFont
+                    )
+
+                    //Food price
+                    PDFUtils.addNewItemWithLeftAndRight(
+                        document,
+                        StringBuilder().append(cartItem.foodQuantity)
+                            .append("*")
+                            .append(cartItem.foodExtraPrice + cartItem.foodPrice)
+                            .toString(),
+                        StringBuilder().append(cartItem.foodQuantity*(cartItem.foodExtraPrice + cartItem.foodPrice))
+                            .toString(),
+                        titleFont,
+                        orderNumberValueFont
+                    )
+                    //Last separator
+                    PDFUtils.addLineSeparator(document)
+
+                }, Consumer { t->
+                    dialog.dismiss()
+                    Toast.makeText(this@HomeActivity, t.message!!, Toast.LENGTH_SHORT).show()
+                },
+                Action { // On Complete
+
+                    //When all product detail is wrote,
+                    PDFUtils.addLineSpace(document)
+                    PDFUtils.addLineSpace(document)
+                    PDFUtils.addNewItemWithLeftAndRight(
+                        document,
+                        "Total",
+                        StringBuilder().append(orderModel.totalPayment).toString(),
+                        titleFont,
+                        titleFont
+                    )
+
+                    //Close
+                    document.close()
+                    dialog!!.dismiss()
+                    Toast.makeText(this@HomeActivity, "Success", Toast.LENGTH_SHORT).show()
+                    printPDF()
+
+                })
+
+        }catch (e:FileNotFoundException){
+            e.printStackTrace()
+        }catch (e:IOException){
+            e.printStackTrace()
+        }catch (e:DocumentException){
+            e.printStackTrace()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    private fun printPDF() {
+        val printManager= getSystemService(Context.PRINT_SERVICE) as PrintManager
+        try{
+            val printDocumentAdapter = PdfDocumentApdapter(
+                this, StringBuilder(Common.getAppPath(this)).append(Common.FILE_PRINT).toString())
+            printManager.print("Document", printDocumentAdapter, PrintAttributes.Builder().build())
+        }catch (e:DocumentException){
+            e.printStackTrace()
         }
     }
 }
