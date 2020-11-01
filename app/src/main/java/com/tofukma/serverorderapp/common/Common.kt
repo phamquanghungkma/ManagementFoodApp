@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -214,23 +215,29 @@ object Common {
     }
 
     fun getAppPath(context: Context): String {
-        val dir = File(Environment.getExternalStorageDirectory().toString()
-        +File.separator
-        +context.resources.getString(R.string.app_name)
-        +File.separator)
+            val code = context.packageManager.checkPermission(
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,context.packageName
+            )
+        if( code == PackageManager.PERMISSION_GRANTED){
+            val dir = File(Environment.getExternalStorageDirectory().toString()
+                    +File.separator
+                    +context.resources.getString(R.string.app_name)
+                    +File.separator)
 
-        if(!dir.exists())
-            dir.mkdir()
+            if(!dir.exists())
+                dir.mkdir()
 
-        val folder = File(
-            Environment.getDataDirectory().toString() + separator.toString() + "test"
-        )
-        if (!folder.exists()) {
-            folder.mkdirs()
+            return  dir.path +File.separator;
         }
-
-        return  folder.path
-        //return  dir.path +File.separator;
+//        val dir = File(Environment.getExternalStorageDirectory().toString()
+//        +File.separator
+//        +context.resources.getString(R.string.app_name)
+//        +File.separator)
+//
+//        if(!dir.exists())
+//            dir.mkdir()
+//        return  dir.path +File.separator;
+            return "path"
     }
 
     fun getBitmapFromUrl(context: Context, cartItem: CartItem, document: Document): Observable<CartItem> {

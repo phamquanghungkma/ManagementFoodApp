@@ -66,7 +66,6 @@ import com.tofukma.serverorderapp.eventbus.PrintOrderEvent
 class OrderFragment : Fragment(), IShipperLoadCallbackListener {
     private val compositeDiposable = CompositeDisposable()
     lateinit var ifcmService: IFCMService
-
     lateinit var recycler_order:RecyclerView
     lateinit var layoutAnimationController:LayoutAnimationController
     lateinit var orderViewModel: OrderViewModel
