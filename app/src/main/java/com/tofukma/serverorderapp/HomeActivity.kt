@@ -152,7 +152,7 @@ class HomeActivity : AppCompatActivity() {
         //View
         val headerView = navView.getHeaderView(0)
         val text_user = headerView.findViewById<View>(R.id.text_user) as TextView
-        Common.setSpanString("Chao ", Common.currentServerUser!!.name,text_user)
+        Common.setSpanString(" Chao ", Common.currentServerUser!!.name,text_user)
 
         menuCLick = R.id.nav_category // Dafault
 

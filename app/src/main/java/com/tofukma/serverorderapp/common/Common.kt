@@ -25,6 +25,7 @@ import com.tofukma.shippingapp.model.TokenModel
 import java.lang.StringBuilder
 import kotlin.random.Random
 
+// singleTon class
 object Common {
 
     val RESTAURANT_REF: String = "Restaurant"
