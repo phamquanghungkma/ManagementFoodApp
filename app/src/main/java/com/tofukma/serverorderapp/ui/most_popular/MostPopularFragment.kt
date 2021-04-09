@@ -155,7 +155,7 @@ class MostPopularFragment : Fragment() {
             .addOnFailureListener { e -> Toast.makeText(context, ""+e.message,Toast.LENGTH_SHORT).show() }
             .addOnCompleteListener { task ->
                 viewModel!!.loadMostPopulars()
-                EventBus.getDefault().postSticky(ToastEvent(false,true))
+                EventBus.getDefault().postSticky(ToastEvent(Common.ACTION.DELETE,true))
             }
     }
 
@@ -231,7 +231,7 @@ class MostPopularFragment : Fragment() {
             .addOnFailureListener { e -> Toast.makeText(context, ""+e.message,Toast.LENGTH_SHORT).show() }
             .addOnCompleteListener { task ->
                 viewModel!!.loadMostPopulars()
-                EventBus.getDefault().postSticky(ToastEvent(true,true))
+                EventBus.getDefault().postSticky(ToastEvent(Common.ACTION.UPDATE,true))
             }
 
     }

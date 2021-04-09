@@ -142,7 +142,7 @@ abstract class MySwipeHelper(context: Context,
             var y = 0f
             if( imageResId == 0 ) // just Text
             {
-                x = cWith/2f - r.left.toFloat()
+                x = cWith/4f - r.left.toFloat()
                 y = cHeight/2f +r.height()/2f - r.bottom
                 c.drawText(text, rectf.left+x , rectf.top + y, p)
             }

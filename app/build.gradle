@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.tofukma.serverorderapp"
-        minSdkVersion 17
+        minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -79,6 +79,8 @@ dependencies {
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
 
 
+    // PDF
+    implementation 'com.itextpdf:itextg:5.5.10'
 
 
 

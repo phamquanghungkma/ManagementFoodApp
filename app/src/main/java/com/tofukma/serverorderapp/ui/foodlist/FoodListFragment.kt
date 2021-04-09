@@ -358,7 +358,7 @@ class FoodListFragment : Fragment(){
             .addOnCompleteListener { task ->
                 if(task.isSuccessful){
                     foodListViewModel.getMutableFoodModelListData()
-                 EventBus.getDefault().postSticky(ToastEvent(!isDelete,true))
+                 EventBus.getDefault().postSticky(ToastEvent(Common.ACTION.UPDATE,true))
 
                 }
             }

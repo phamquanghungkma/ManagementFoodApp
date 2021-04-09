@@ -6,15 +6,14 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -30,6 +29,7 @@ import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.common.MySwipeHelper
 import com.tofukma.serverorderapp.eventbus.ToastEvent
 import com.tofukma.serverorderapp.model.CategoryModel
+import com.tofukma.serverorderapp.model.FoodModel
 import dmax.dialog.SpotsDialog
 import kotlinx.android.synthetic.main.layout_update_category.*
 import org.greenrobot.eventbus.EventBus
@@ -64,7 +64,7 @@ class CategoryFragment : Fragment() {
 
         categoryViewModel.getMessageError().observe(this, Observer {
 
-            Toast.makeText(context,it, Toast.LENGTH_SHORT).show()
+            Toast.makeText(root.context,it, Toast.LENGTH_SHORT).show()
         })
         categoryViewModel.getCategoryList().observe(this, Observer {
             dialog.dismiss()
@@ -73,6 +73,19 @@ class CategoryFragment : Fragment() {
             recycler_menu!!.adapter = adapter
             recycler_menu!!.layoutAnimation = layoutAnimationController
         })
+//        val toolbar:Toolbar = root.findViewById(R.id.toolbar)
+//        toolbar.inflateMenu(R.menu.action_bar_menu)
+//        toolbar.setOnMenuItemClickListener {
+//                item ->
+//            when (item.itemId) {
+//                R.id.action_create -> {
+//                    Toast.makeText(requireActivity(), "One",
+//                        Toast.LENGTH_LONG).show()
+//                }
+//
+//            }
+//            true
+//        }
         return root
     }
     private fun initViews(root:View) {
@@ -92,7 +105,7 @@ class CategoryFragment : Fragment() {
         recycler_menu!!.layoutManager = staggeredGridLayoutManager
         recycler_menu!!.addItemDecoration(DividerItemDecoration(context, layoutManager.orientation))
 
-        val swipe = object: MySwipeHelper(context!!, recycler_menu!!, 200)
+        val swipe = object: MySwipeHelper(requireContext(), recycler_menu!!, 200)
         {
             override fun instantianteMyButton(
                 viewHolder: RecyclerView.ViewHolder,
@@ -124,6 +137,21 @@ class CategoryFragment : Fragment() {
             }
         }
 
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.action_bar_menu,menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        if(item.itemId ==  R.id.action_create){
+            showDialog()
+        }
+        return super.onOptionsItemSelected(item)
+
     }
 
     private fun showDeleteDialog() {
@@ -134,7 +162,7 @@ class CategoryFragment : Fragment() {
         builder.setNegativeButton("CANCEL"){ dialogInterface, _ -> dialogInterface.dismiss() }
         builder.setPositiveButton("Delete"){dialogInterface, _ ->
 
-            deleteDialog()
+            deleteCategory()
         }
 
         val deleteDialog = builder.create()
@@ -150,7 +178,7 @@ class CategoryFragment : Fragment() {
             .addOnFailureListener { e -> Toast.makeText(context, ""+e.message,Toast.LENGTH_SHORT).show() }
             .addOnCompleteListener { task ->
                 categoryViewModel!!.loadCategory()
-                EventBus.getDefault().postSticky(ToastEvent(false,false))
+                EventBus.getDefault().postSticky(ToastEvent(Common.ACTION.DELETE,false))
             }
     }
 
@@ -214,6 +242,83 @@ class CategoryFragment : Fragment() {
         val updateDialog = builder.create()
         updateDialog.show()
     }
+    private fun showDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(context!!)
+        builder.setTitle("Create Category")
+        builder.setMessage("Please fill information")
+
+        val itemView = LayoutInflater.from(context).inflate(R.layout.layout_update_category, null)
+        val edt_category_name = itemView.findViewById<View>(R.id.edit_category_name) as EditText
+        img_category = itemView.findViewById<View>(R.id.img_category) as ImageView
+
+        // Set data
+        Glide.with(context!!).load(R.drawable.ic_add_circle_outline_24).into(img_category)
+
+        // Set event
+        img_category.setOnClickListener { view ->
+            val  intent = Intent()
+            intent.type = "image/*"
+            intent.action = Intent.ACTION_GET_CONTENT
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"),PICK_IMAGE_REQUEST)
+        }
+
+        builder.setNegativeButton("CANCEL"){ dialogInterface, _ -> dialogInterface.dismiss() }
+        builder.setPositiveButton("CREATE"){dialogInterface, _ ->
+
+          val categoryModel = CategoryModel()
+            categoryModel.name = edt_category_name.text.toString()
+            categoryModel.foods = ArrayList<FoodModel>()
+
+
+
+            if(imageUri != null)
+            {
+                dialog.setMessage("Uploading...")
+                dialog.show()
+
+                val imageName = UUID.randomUUID().toString()
+                val imageFolder = storageReference.child("images/$imageName")
+                imageFolder.putFile(imageUri!!)
+                    .addOnFailureListener { e ->
+                        dialog.dismiss()
+                        Toast.makeText(context, ""+e.message, Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnProgressListener { taskSnapshot ->
+                        val progress = 100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount
+                        dialog.setMessage("Uploaded $progress%")
+                    }
+                    .addOnSuccessListener { taskSnapshot ->
+                        dialog.dismiss()
+                        imageFolder.downloadUrl.addOnSuccessListener { uri ->
+                            categoryModel.image = uri.toString()
+                            addCategory(categoryModel)
+                        }
+                    }
+            }
+            else
+            {
+                addCategory(categoryModel)
+            }
+        }
+
+        builder.setView(itemView)
+        val updateDialog = builder.create()
+        updateDialog.show()
+    }
+    private fun addCategory(categoryModel: CategoryModel) {
+        FirebaseDatabase.getInstance()
+            .getReference(Common.RESTAURANT_REF)
+            .child(Common.currentServerUser!!.restaurant!!)
+            .child(Common.CATEGORY_REF)
+            .push()
+            .setValue(categoryModel)
+            .addOnFailureListener { e -> Toast.makeText(context, ""+e.message,Toast.LENGTH_SHORT).show() }
+            .addOnCompleteListener { task ->
+                categoryViewModel!!.loadCategory()
+                EventBus.getDefault().postSticky(ToastEvent(Common.ACTION.CREATE,false))
+            }
+    }
+
     private fun updateCategory(updateDate: java.util.HashMap<String, Any>) {
         FirebaseDatabase.getInstance()
             .getReference(Common.RESTAURANT_REF)
@@ -224,7 +329,7 @@ class CategoryFragment : Fragment() {
             .addOnFailureListener { e -> Toast.makeText(context, ""+e.message,Toast.LENGTH_SHORT).show() }
             .addOnCompleteListener { task ->
                 categoryViewModel!!.loadCategory()
-               EventBus.getDefault().postSticky(ToastEvent(true,false))
+               EventBus.getDefault().postSticky(ToastEvent(Common.ACTION.UPDATE,false))
             }
     }
 
@@ -244,11 +349,14 @@ class CategoryFragment : Fragment() {
             .getReference(Common.RESTAURANT_REF)
             .child(Common.currentServerUser!!.restaurant!!)
             .child(Common.CATEGORY_REF)
+            .child(Common.categorySelected!!.menu_id!!)
             .removeValue()
             .addOnFailureListener{e->Toast.makeText(context,""+e.message,Toast.LENGTH_SHORT).show()}
             .addOnCompleteListener{task ->
                 categoryViewModel!!.loadCategory()
-                EventBus.getDefault().postSticky(ToastEvent(false,false))
+                EventBus.getDefault().postSticky(ToastEvent(Common.ACTION.DELETE,false))
             }
     }
+
 }
+

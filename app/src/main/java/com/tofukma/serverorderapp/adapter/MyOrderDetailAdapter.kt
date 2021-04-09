@@ -1,6 +1,7 @@
 package com.tofukma.serverorderapp.adapter
 
 import android.content.Context
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,9 +61,17 @@ class MyOrderDetailAdapter (internal var context: Context,
         holder.txt_food_name!!.setText(StringBuilder().append(cartItemList[position].foodName))
         holder.txt_food_quantity!!.setText(StringBuilder("Số lượng: ").append(cartItemList[position].foodQuantity))
         holder.txt_food_comment!!.setText(StringBuilder("Ghi chú: ").append("Giao nhanh "))
-        val sizeModel: SizeModel = gson.fromJson(cartItemList[position].foodSize,
-            object:TypeToken<SizeModel?>(){}.type)
-        if(sizeModel != null) holder.txt_food_size!!.setText(StringBuilder("Kích thước: ").append(sizeModel.name))
+//        val sizeModel: SizeModel = gson.fromJson(cartItemList[position].foodSize,
+//            object:TypeToken<SizeModel?>(){}.type)
+//        if(sizeModel != null) holder.txt_food_size!!.setText(StringBuilder("Kích thước: ").append(sizeModel.name))
+
+        if(cartItemList[position].foodSize.equals("Default"))
+            holder.txt_food_size!!.setText(StringBuilder("Size: Default"))
+        else {
+            val sizeModel  = gson.fromJson<SizeModel>(cartItemList[position].foodSize,SizeModel::class.java)
+            holder.txt_food_size!!.setText(StringBuilder("size").append(sizeModel.name))
+        }
+
         if(!cartItemList[position].foodAddon.equals("Default"))
         {
             val addonModels : List<AddonModel> = gson.fromJson(cartItemList[position].foodAddon,

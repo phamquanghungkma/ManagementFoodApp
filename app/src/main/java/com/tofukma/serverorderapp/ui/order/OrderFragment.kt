@@ -45,6 +45,7 @@ import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.common.MySwipeHelper
 import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
 import com.tofukma.serverorderapp.eventbus.LoadOrderEvent
+import com.tofukma.serverorderapp.eventbus.PrintOrderEvent
 import com.tofukma.serverorderapp.model.*
 import com.tofukma.serverorderapp.remote.IFCMService
 import com.tofukma.serverorderapp.remote.RetrofitFCMClient
@@ -59,6 +60,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.StringBuilder
+import java.util.jar.Manifest
 
 class OrderFragment : Fragment(), IShipperLoadCallbackListener {
     private val compositeDiposable = CompositeDisposable()
@@ -142,6 +144,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                         }
                     })
                 )
+
                 buffer.add(MyButton(context!!,
                     "Gọi",
                     30,
@@ -174,46 +177,38 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                                 }).check()
                         }
                     }))
-
                 buffer.add(MyButton(context!!,
-                    "Di chuyển",
+                    "In Bill",
                     30,
                     0,
                     Color.parseColor("#12005e"),
                     object: IMyButtonCallback {
                         override fun onClick(pos: Int) {
-                            val orderModel = adapter!!.getItemAtPosition(pos)
+                            Dexter.withActivity(activity)
+                                    .withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                .withListener(object: PermissionListener{
+                                    override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+                                        // gửi sự kiện đến HomeActivity cho quá trình in
+                                        EventBus.getDefault().postSticky(PrintOrderEvent(
+                                            StringBuilder(Common.getAppPath(activity!!))
+                                                .append(Common.FILE_PRINT).toString(),
+                                            adapter!!.getItemAtPosition(pos)
+                                        ))
+                                    }
 
-                            val builder = AlertDialog.Builder(context!!)
-                                .setTitle("Xóa")
-                                .setMessage("Bạn thực sự muốn xóa đơn hàng này?")
-                                .setNegativeButton("Hủy"){dialogInterface, i -> dialogInterface.dismiss()}
-                                .setPositiveButton("Xóa"){dialogInterface, i ->
-                                    FirebaseDatabase.getInstance()
-                                        .getReference(Common.RESTAURANT_REF)
-                                        .child(Common.currentServerUser!!.restaurant!!)
-                                        .child(Common.ORDER_REF)
-                                        .child(orderModel!!.key!!)
-                                        .removeValue()
-                                        .addOnFailureListener{
-                                            Toast.makeText(context!!,""+it.message,Toast.LENGTH_SHORT).show()
-                                        }
-                                        .addOnSuccessListener {
-                                            adapter!!.removeItem(pos)
-                                            adapter!!.notifyItemRemoved(pos)
-                                            updateTextCounter()
-                                            dialogInterface.dismiss()
-                                            Toast.makeText(context!!,"Đơn hàng đã bị xóa",Toast.LENGTH_SHORT).show()
-                                        }
-                                }
+                                    override fun onPermissionRationaleShouldBeShown(
+                                        permission: PermissionRequest?,
+                                        token: PermissionToken?
+                                    ) {
+                                        Toast.makeText(context,"Bạn nên đồng ý cấp phép quyền truy cập 1 ",Toast.LENGTH_LONG).show()
 
-                            val dialog = builder.create()
-                            dialog.show()
+                                    }
 
-                            val btn_negative = dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-                            btn_negative.setTextColor(Color.LTGRAY)
-                            val btn_positve = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
-                            btn_positve.setTextColor(Color.RED)
+                                    override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                                        Toast.makeText(context,"Bạn nên đồng ý cấp phép quyền truy cập ",Toast.LENGTH_LONG).show()
+                                    }
+
+                                })
                         }
 
                     }))
@@ -404,6 +399,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         orderModel: OrderModel,
         dialog: AlertDialog) {
         val shippingOrder = ShippingOrderModel()
+        shippingOrder.restaurantKey = Common.currentServerUser!!.restaurant!!
         shippingOrder.shipperName = shipperModel.name
         shippingOrder.shipperPhone = shipperModel.phone
         shippingOrder.orderModel = orderModel
@@ -437,7 +433,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                             if(p0.exists())
                             {
                                 val tokenModel = p0.getValue(TokenModel::class.java)
-                                Log.d("Token", tokenModel.toString())
+                                Log.d("Token", tokenModel!!.token.toString())
                                 val notiData = HashMap<String,String>()
                                 notiData.put(Common.NOTI_TITLE,"Bạn có đơn hàng mới cần ship ")
                                 notiData.put(Common.NOTI_CONTENT,StringBuilder("Đơn ship mới ")

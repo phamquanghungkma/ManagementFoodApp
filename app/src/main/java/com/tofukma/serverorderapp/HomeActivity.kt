@@ -1,51 +1,68 @@
 package com.tofukma.serverorderapp
 
+import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.navigation.NavController
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.itextpdf.text.*
+import com.itextpdf.text.pdf.BaseFont
+import com.itextpdf.text.pdf.PdfWriter
+import com.tofukma.serverorderapp.adapter.PdfDocumentAdapter
 import com.tofukma.serverorderapp.common.Common
+import com.tofukma.serverorderapp.common.PDFUtils
 import com.tofukma.serverorderapp.eventbus.CategoryClick
 import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
+import com.tofukma.serverorderapp.eventbus.PrintOrderEvent
 import com.tofukma.serverorderapp.eventbus.ToastEvent
+import com.tofukma.serverorderapp.model.CartItem
 import com.tofukma.serverorderapp.model.FCMResponse
 import com.tofukma.serverorderapp.model.FCMSendData
+import com.tofukma.serverorderapp.model.OrderModel
 import com.tofukma.serverorderapp.remote.IFCMService
 import com.tofukma.serverorderapp.remote.RetrofitFCMClient
-import io.reactivex.Scheduler
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Action
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.schedulers.Schedulers.io
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.lang.Exception
-import java.lang.StringBuilder
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -65,19 +82,17 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var storage:FirebaseStorage
     private var storageReference:StorageReference?=null
 
+    private lateinit var dialog: AlertDialog
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        ifcmService = RetrofitFCMClient.getInstance().create(IFCMService::class.java)
-        storage = FirebaseStorage.getInstance()
-        storageReference = storage.reference
-        // lắng nghe Notification Topic đc gửi từ Client
-        subscribeToTopic(Common.getNewOrderTopic())
+        init()
 
-        updateToken()
+
 
 
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -158,7 +173,19 @@ class HomeActivity : AppCompatActivity() {
 
 //        checkOpendOrderFragment()
     }
+    private fun init(){
+        ifcmService = RetrofitFCMClient.getInstance().create(IFCMService::class.java)
+        storage = FirebaseStorage.getInstance()
+        storageReference = storage.reference
+        // lắng nghe Notification Topic đc gửi từ Client
+        subscribeToTopic(Common.getNewOrderTopic())
+        updateToken()
 
+        dialog = AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setMessage("Vui lòng chờ ")
+            .create()
+    }
     private fun showSendNewsDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("New System")
@@ -275,6 +302,7 @@ class HomeActivity : AppCompatActivity() {
             },{t: Throwable? ->
                 dialog.dismiss()
                 Toast.makeText(this@HomeActivity, t!!.message, Toast.LENGTH_LONG).show()
+
             }))
     }
 
@@ -302,10 +330,15 @@ class HomeActivity : AppCompatActivity() {
     private fun subscribeToTopic(newOrderTopic: String) {
         FirebaseMessaging.getInstance().subscribeToTopic(newOrderTopic).addOnFailureListener {
             message -> Toast.makeText(this@HomeActivity,""+message.message,Toast.LENGTH_SHORT).show()
+            Log.d("checkNoti",message.toString())
         }
             .addOnCompleteListener { task ->
-                if(!task.isSuccessful)
+
+                if(!task.isSuccessful) {
                     Toast.makeText(this@HomeActivity,"Lắng nghe topic thất bại !",Toast.LENGTH_SHORT).show()
+                    Log.d("checkNoti1",task.result.toString())
+                }
+
             }
 
     }
@@ -372,14 +405,157 @@ class HomeActivity : AppCompatActivity() {
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     fun onToastEvent(event: ToastEvent){
-        if(event.isUpdate){
+        if(event.action == Common.ACTION.CREATE){
+            Toast.makeText(this,"Tao thanh cong",Toast.LENGTH_SHORT).show()
+        }
+        else if(event.action == Common.ACTION.UPDATE){
         Toast.makeText(this,"Cap nhat thanh cong",Toast.LENGTH_SHORT).show()
         }
         else{
           Toast.makeText(this,"Xoa thanh cong",Toast.LENGTH_SHORT).show()
         }
+
         EventBus.getDefault().postSticky(ChangeMenuClick(event.isBackFromFoodList))
     }
+    //print
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    fun onPrintEventListener(event: PrintOrderEvent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            createPDFFile(event.path, event.orderModel)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    private fun createPDFFile(path: String, orderModel: OrderModel) {
+        dialog.show()
+        if (File(path).exists())
+            File(path).delete()
+        try {
+            val document = Document()
+            //Save
+            PdfWriter.getInstance(document,FileOutputStream(path))
+
+            // open
+            document.open()
+
+            // setting
+            document.pageSize= (PageSize.A4)
+            document.addCreationDate()
+            document.addAuthor("Ứng dụng bán đồ ăn ")
+            document.addCreator(Common.currentServerUser!!.name)
+
+            // font settting
+            val colorAccent =  BaseColor(0,153,204,255)
+            val fontSize = 20.0f
+
+
+            // custom font
+            val fontName  = BaseFont.createFont("assets/fonts/brandon_medium.otf","UTF-8",BaseFont.EMBEDDED)
+
+            // create title of document
+
+            val titleFont = Font(fontName, 36.0f,Font.NORMAL,BaseColor.BLACK)
+            PDFUtils.addNewItem(document,"Chi tiết order", Element.ALIGN_CENTER,titleFont)
+
+
+            // add more
+            val orderNumberFont = Font(fontName,fontSize,Font.NORMAL,colorAccent)
+            PDFUtils.addNewItem(document,"order No:",Element.ALIGN_LEFT,orderNumberFont)
+
+            val orderNumberValueFont =  Font(fontName,fontSize,Font.NORMAL, BaseColor.BLACK)
+            PDFUtils.addNewItem(document,orderModel.key!!,Element.ALIGN_LEFT,orderNumberValueFont)
+            PDFUtils.addLineSeperator(document)
+
+            // Date
+            PDFUtils.addNewItem(document,"Order Date",Element.ALIGN_LEFT,orderNumberFont)
+            PDFUtils.addNewItem(document,SimpleDateFormat("dd-MM-yyyy").format(orderModel.createDate),Element.ALIGN_LEFT,orderNumberFont)
+
+            PDFUtils.addLineSeperator(document)
+
+            //Account name
+            PDFUtils.addNewItem(document,"Account Name",Element.ALIGN_LEFT,orderNumberFont)
+            PDFUtils.addNewItem(document,orderModel.userName!!,Element.ALIGN_LEFT,orderNumberValueFont)
+            PDFUtils.addLineSeperator(document)
+
+            // Product detail
+
+            PDFUtils.addLineSpace(document)
+            PDFUtils.addNewItem(document,"Product Detail",Element.ALIGN_CENTER,titleFont)
+            PDFUtils.addLineSeperator(document)
+
+            // use Java Rx to fetch image from url and add to PDF
+            Observable.fromIterable(orderModel.carItemList).flatMap({cartItem: CartItem -> Common.getBitmapFromUrl(this@HomeActivity,cartItem,document)
+            })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(io.reactivex.functions.Consumer {cartItem ->
+
+                    // moi item, we will add detail
+                    // Foodname
+                    PDFUtils.addNewItemwithLeftAndRight(document,cartItem.foodName!!,"(0.0%)",titleFont,orderNumberValueFont)
+                    //Food Size and addOn
+                    PDFUtils.addNewItemwithLeftAndRight(document,"Size",Common.formatSizeJSonToString(cartItem.foodSize!!)!!,titleFont,orderNumberValueFont)
+                    PDFUtils.addNewItemwithLeftAndRight(document,"AddOn",Common.formatAddOnJSonToString(cartItem.foodAddon!!)!!,titleFont,orderNumberValueFont)
+
+                    // food price
+                    PDFUtils.addNewItemwithLeftAndRight(document,StringBuilder().append(cartItem.foodQuantity).append("*").append(cartItem.foodExtraPrice + cartItem.foodPrice)
+                        .toString(),StringBuilder().append(cartItem.foodQuantity*(cartItem.foodExtraPrice + cartItem.foodPrice)).toString(),titleFont,orderNumberValueFont)
+
+                    // last seperator
+                    PDFUtils.addLineSeperator(document)
+
+                }, io.reactivex.functions.Consumer {
+                    t->
+                    dialog.dismiss()
+                    Toast.makeText(this@HomeActivity, t.message!!, Toast.LENGTH_LONG).show()
+
+                }, Action {
+                    PDFUtils.addLineSpace(document)
+                    PDFUtils.addLineSpace(document)
+                    PDFUtils.addNewItemwithLeftAndRight(
+                        document,
+                        "Total",
+                        StringBuilder().append(orderModel.totalPayment).toString(),
+                        titleFont,
+                        titleFont
+                    )
+                    document.close()
+                    dialog!!.dismiss()
+                    Toast.makeText(this@HomeActivity,"Success",Toast.LENGTH_LONG).show()
+                    printPDF()
+                })
+
+        } catch (e:FileNotFoundException){
+            e.printStackTrace()
+        } catch (e:IOException){
+            e.printStackTrace()
+        }catch (e:DocumentException){
+            e.printStackTrace()
+        }
+
+    }
+
+
+    private fun printPDF(){
+
+        if (Build.VERSION.SDK_INT >= 19) {
+            val printManager = getSystemService(Context.PRINT_SERVICE) as PrintManager
+
+            try {
+                val printDocumentAdapter = PdfDocumentAdapter(
+                    this,StringBuilder(Common.getAppPath(this)).append(Common.FILE_PRINT).toString())
+                printManager.print("Document",printDocumentAdapter,PrintAttributes.Builder().build())
+            } catch(e: Exception){
+                e.printStackTrace()
+            }
+
+
+        } else {
+
+            Toast.makeText(this@HomeActivity,"Version cua ban k the in",Toast.LENGTH_LONG).show()
+        }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
