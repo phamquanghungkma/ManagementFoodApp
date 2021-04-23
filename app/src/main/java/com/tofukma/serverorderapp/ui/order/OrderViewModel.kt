@@ -49,7 +49,9 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
                    orderModel!!.key = itemSnapShot.key
                    orderModel!!.orderNumber = itemSnapShot.key
                    tempList.add(orderModel)
+
                }
+               tempList.sortByDescending { it.createDate }
                 orderCallbackListener.onOrderLoadSuccess(tempList)
             }
         })
@@ -58,11 +60,12 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
     override fun onOrderLoadSuccess(orderModel: List<OrderModel>) {
        if (orderModel.size >= 0) {
            Collections.sort(orderModel){t1,t2 ->
-               if(t1.createDate < t2.createDate) return@sort -1
+               if(t1.createDate > t2.createDate) return@sort -1
                if(t1.createDate == t2.createDate) 0 else 1
            }
 
            orderModelList.value = orderModel
+           println("sort" + orderModel)
        }
     }
 
