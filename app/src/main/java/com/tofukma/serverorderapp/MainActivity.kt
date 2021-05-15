@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Layout
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -88,6 +89,7 @@ class MainActivity : AppCompatActivity() {
 
                             override fun onDataChange(snapShot: DataSnapshot) {
                                 if (snapShot.exists()){
+                                    Log.d("snapShot",snapShot.value.toString())
                                     val userModel = snapShot.getValue(ServerUserModel::class.java)
                                     if(userModel!!.isActive){
                                         gotoHomeActivity(userModel)
@@ -142,6 +144,7 @@ class MainActivity : AppCompatActivity() {
                     serverUserModel.name = edt_name.text.toString()
                     serverUserModel.phone = edt_phone.text.toString()
                     serverUserModel.isActive = false // default fail, we must active by manual on Firebase
+//                    serverUserModel.restaurant = Common.currentServerUser!!.uid
 
                     dialog!!.show()
                     serverRef!!.child(serverUserModel.uid!!).setValue(serverUserModel)
