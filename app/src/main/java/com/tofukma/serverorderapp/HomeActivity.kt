@@ -133,6 +133,7 @@ class HomeActivity : AppCompatActivity() {
                 {
                     if (menuCLick != p0.itemId)
                     {
+                        navController.popBackStack()
                         navController.navigate(R.id.nav_category)
                     }
                 }
@@ -140,6 +141,7 @@ class HomeActivity : AppCompatActivity() {
                 {
                     if (menuCLick != p0.itemId)
                     {
+                        navController.popBackStack()
                         navController.navigate(R.id.nav_order)
                     }
                 }

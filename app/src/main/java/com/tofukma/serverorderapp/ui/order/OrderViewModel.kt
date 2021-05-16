@@ -28,8 +28,8 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
         return orderModelList
     }
 
-     fun loadOrder(status: Int) {
-
+    public fun loadOrder(status: Int) {
+        Log.d("status",status.toString())
         val tempList  : MutableList<OrderModel> = ArrayList()
         val orderRef = FirebaseDatabase.getInstance()
             .getReference(Common.RESTAURANT_REF)
@@ -39,16 +39,18 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
             .equalTo(status.toDouble())
         orderRef.addListenerForSingleValueEvent(object :ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
-               orderCallbackListener.onOrderLoadFailed(p0.message)
+                orderCallbackListener.onOrderLoadFailed(p0.message)
+
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-               for (itemSnapShot in p0.children){
+
+                for (itemSnapShot in p0.children){
 //                   Log.e(TAG,"+1 oder")
-                   val orderModel = itemSnapShot.getValue(OrderModel::class.java)
+                    val orderModel = itemSnapShot.getValue(OrderModel::class.java)
                    orderModel!!.key = itemSnapShot.key
                    orderModel!!.orderNumber = itemSnapShot.key
-                   tempList.add(orderModel)
+                    tempList.add(orderModel)
                }
                 orderCallbackListener.onOrderLoadSuccess(tempList)
             }
@@ -58,7 +60,7 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
     override fun onOrderLoadSuccess(orderModel: List<OrderModel>) {
        if (orderModel.size >= 0) {
            Collections.sort(orderModel){t1,t2 ->
-               if(t1.createDate < t2.createDate) return@sort -1
+               if(t1.createDate > t2.createDate) return@sort -1
                if(t1.createDate == t2.createDate) 0 else 1
            }
 

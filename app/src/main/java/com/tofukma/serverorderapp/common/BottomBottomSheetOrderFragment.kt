@@ -10,7 +10,7 @@ import com.tofukma.serverorderapp.eventbus.LoadOrderEvent
 import kotlinx.android.synthetic.main.fragment_order_filter.*
 import org.greenrobot.eventbus.EventBus
 
-class BottomSheetOrderFragment : BottomSheetDialogFragment() {
+class BottomBottomSheetOrderFragment : BottomSheetDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +50,7 @@ class BottomSheetOrderFragment : BottomSheetDialogFragment() {
     }
 
     companion object{
-        val instances:BottomSheetOrderFragment? = null
-            get() = field ?: BottomSheetOrderFragment()
+        val instances:BottomBottomSheetOrderFragment? = null
+            get() = field ?: BottomBottomSheetOrderFragment()
     }
 }

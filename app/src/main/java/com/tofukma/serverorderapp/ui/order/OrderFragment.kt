@@ -27,7 +27,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
@@ -40,7 +39,7 @@ import com.tofukma.serverorderapp.adapter.MyOrderAdapter
 import com.tofukma.serverorderapp.adapter.MyShipperSelectedAdapter
 import com.tofukma.serverorderapp.callback.IMyButtonCallback
 import com.tofukma.serverorderapp.callback.IShipperLoadCallbackListener
-import com.tofukma.serverorderapp.common.BottomSheetOrderFragment
+import com.tofukma.serverorderapp.common.BottomBottomSheetOrderFragment
 import com.tofukma.serverorderapp.common.Common
 import com.tofukma.serverorderapp.common.MySwipeHelper
 import com.tofukma.serverorderapp.eventbus.ChangeMenuClick
@@ -48,7 +47,6 @@ import com.tofukma.serverorderapp.eventbus.LoadOrderEvent
 import com.tofukma.serverorderapp.model.*
 import com.tofukma.serverorderapp.remote.IFCMService
 import com.tofukma.serverorderapp.remote.RetrofitFCMClient
-import com.tofukma.serverorderapp.services.MyFCMServices
 import com.tofukma.shippingapp.model.TokenModel
 import dmax.dialog.SpotsDialog
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -332,6 +330,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         //Create Dialog
         val dialog = builder.create()
         if (orderModel.orderStatus == 0) //shipping
+
             loadShipperList(pos,orderModel,dialog,btn_ok,btn_cancel,
                 rdi_shipping,rdi_shipped,rdi_cancelled,
                 rdi_delete,rdi_restore_placed)
@@ -526,7 +525,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
     private fun deleteOrder(pos: Int, orderModel: OrderModel) {
         if(!TextUtils.isEmpty(orderModel.key))
         {
-
             FirebaseDatabase.getInstance()
                 .getReference(Common.RESTAURANT_REF)
                 .child(Common.currentServerUser!!.restaurant!!)
@@ -637,7 +635,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(item.itemId == R.id.action_filter){
-            val bottomSheet = BottomSheetOrderFragment.instances
+            val bottomSheet = BottomBottomSheetOrderFragment.instances
             bottomSheet!!.show(activity!!.supportFragmentManager,"OrderList")
             return true
         }

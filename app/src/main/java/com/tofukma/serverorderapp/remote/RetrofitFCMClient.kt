@@ -11,11 +11,11 @@ object RetrofitFCMClient {
     fun getInstance(): Retrofit{
         if(instance == null)
             instance = Retrofit.Builder()
-                .baseUrl("https://fcm.googleapis.com")
+                .baseUrl("https://fcm.googleapis.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
-            return instance!!
+        return instance!!
 
     }
 

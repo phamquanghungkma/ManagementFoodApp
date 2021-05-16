@@ -75,7 +75,7 @@ class MyOrderAdapter (internal var context: Context,
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        Glide.with(context).load(orderList[position].carItemList!![0].foodImage)
+        Glide.with(context).load(orderList[position].carItemList?.get(0)?.foodImage)
             .into(holder.img_food_image!!)
         holder.txt_order_number!!.setText(orderList[position].key)
         Common.setPanStringColor("Ngày đặt hàng",simpleDataFormat.format(orderList[position].createDate),
