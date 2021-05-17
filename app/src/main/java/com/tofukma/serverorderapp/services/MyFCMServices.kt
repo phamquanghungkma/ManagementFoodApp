@@ -7,6 +7,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.tofukma.serverorderapp.MainActivity
 import com.tofukma.serverorderapp.common.Common
 import java.util.*
+import kotlin.reflect.typeOf
 
 class MyFCMServices : FirebaseMessagingService(){
     override fun onNewToken(p0: String) {
@@ -15,11 +16,14 @@ class MyFCMServices : FirebaseMessagingService(){
         // Khi một thiết bị cài đặt ứng dụng thì nó sẽ tạo ra một device_token, ta sẽ gửi device_token đó lên Firebase
     }
 
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
         val dataRev = remoteMessage.data
-        Log.d("Receive",dataRev.toString())
+        Log.d("Receive", dataRev.toString())
+        var detail = dataRev["detail"]
+        Log.d("Receive",detail.toString())
         if(dataRev != null ){
             if (dataRev[Common.NOTI_TITLE]!!.equals(" Đơn mới "))
             {

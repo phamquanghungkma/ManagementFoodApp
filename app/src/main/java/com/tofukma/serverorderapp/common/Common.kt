@@ -17,6 +17,7 @@ import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
@@ -140,6 +141,7 @@ object Common {
         }
         //// Apply the layouts to the notification
         val builder = NotificationCompat.Builder(context,NOTIFICATION_CHANNEL_ID)
+            Log.d("content",content!!)
 
         builder.setContentTitle(title!!)
                 .setContentText(content!!).setAutoCancel(true)

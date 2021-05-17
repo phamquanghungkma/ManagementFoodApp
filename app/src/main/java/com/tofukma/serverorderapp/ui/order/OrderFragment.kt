@@ -175,6 +175,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                                     .append(". Bạn không thể kiểm tra trạng thái"),
                                     Toast.LENGTH_SHORT).show()
                             }
+
                         }
                     }))
 
@@ -479,7 +480,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                                 val notiData = HashMap<String,String>()
                                 notiData.put(Common.NOTI_TITLE,"Bạn có đơn hàng mới cần ship ")
                                 notiData.put(Common.NOTI_CONTENT,StringBuilder("Đơn ship mới ")
-                                    .append(orderModel.userPhone)
+                                    .appendln(orderModel.key)
                                     .toString()
                                 )
                                 val sendData = FCMSendData(tokenModel!!.token!!,notiData)

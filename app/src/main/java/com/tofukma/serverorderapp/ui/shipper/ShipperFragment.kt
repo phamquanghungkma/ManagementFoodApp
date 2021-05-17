@@ -74,7 +74,7 @@ class ShipperFragment : Fragment() {
         dialog.show()
         layoutAnimationController = AnimationUtils.loadLayoutAnimation(context,R.anim.layout_item_from_left)
 
-        recycler_shipper = root.findViewById(R.id.recycler_shipper) as RecyclerView
+        recycler_shipper = root.findViewById(R.id.recycler_shipper) as? RecyclerView
 //        recycler_shipper!!.setHasFixedSize(true)
         val staggeredGridLayoutManager = StaggeredGridLayoutManager(1,RecyclerView.VERTICAL)
         val layoutManager = LinearLayoutManager(context)
