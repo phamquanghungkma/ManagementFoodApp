@@ -1,6 +1,7 @@
 package com.tofukma.serverorderapp.services
 
 import android.content.Intent
+import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.tofukma.serverorderapp.MainActivity
@@ -18,6 +19,7 @@ class MyFCMServices : FirebaseMessagingService(){
         super.onMessageReceived(remoteMessage)
 
         val dataRev = remoteMessage.data
+        Log.d("Receive",dataRev.toString())
         if(dataRev != null ){
             if (dataRev[Common.NOTI_TITLE]!!.equals(" Đơn mới "))
             {

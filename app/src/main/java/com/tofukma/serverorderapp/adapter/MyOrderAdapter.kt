@@ -80,7 +80,7 @@ class MyOrderAdapter (internal var context: Context,
         holder.txt_order_number!!.setText(orderList[position].key)
         Common.setPanStringColor("Ngày đặt hàng",simpleDataFormat.format(orderList[position].createDate),
         holder.txt_time,Color.parseColor("#333639"))
-        Common.setPanStringColor("Trạng thái đơn hàng",Common.convertStatusToString(orderList[position].orderStatus),
+        Common.setPanStringColor("Trạng thái đơn :",Common.convertStatusToString(orderList[position].orderStatus),
         holder.txt_order_status,Color.parseColor("#005758"))
 
         Common.setPanStringColor("Số đơn hàng ",if(orderList[position].carItemList == null) "0" else orderList[position].carItemList!!.size.toString(),

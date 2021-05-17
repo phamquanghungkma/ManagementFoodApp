@@ -87,11 +87,11 @@ object Common {
 
     fun convertStatusToString(orderStatus: Int): String? =
         when(orderStatus){
-            0 -> "Đặt hàng"
-            1 -> "Đang Chuyển Hàng"
-            2 -> "Đến nơi"
-            -1 -> "Hủy đơn hàng"
-            else -> "Lỗi đặt hàng"
+            0 -> " đơn mới"
+            1 -> " đang Chuyển Hàng"
+            2 -> " đã đến nơi"
+            -1 -> " đơn bị huỷ "
+            else -> " Lỗi đặt hàng"
         }
     fun createOrderNumber(): String {
         return StringBuilder().append(System.currentTimeMillis()).append(Math.abs(Random.nextInt())).toString()
@@ -145,6 +145,8 @@ object Common {
                 .setContentText(content!!).setAutoCancel(true)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setLargeIcon(BitmapFactory.decodeResource(context.resources,R.drawable.ic_baseline_restaurant_menu_24))
+             .setStyle(NotificationCompat.BigTextStyle().bigText(content))
+
 
         if(pendingIntent != null)
             builder.setContentIntent(pendingIntent)

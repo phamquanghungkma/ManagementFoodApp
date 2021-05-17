@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:fontFamily="@font/brandon_medium"
-            android:text="Placed"
+            android:text="Đơn mới"
             android:textColor="#737373"
             android:textSize="16sp" />
 
@@ -66,7 +66,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:fontFamily="@font/brandon_medium"
-            android:text="Shipper"
+            android:text="Đang vận chuyển "
             android:textColor="#737373"
             android:textSize="16sp" />
 
@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:fontFamily="@font/brandon_medium"
-            android:text="Done"
+            android:text="Hoàn thành"
             android:textColor="#737373"
             android:textSize="16sp" />
 
@@ -134,7 +134,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:fontFamily="@font/brandon_medium"
-            android:text="Clear"
+            android:text="Đơn huỷ "
             android:textColor="#737373"
             android:textSize="16sp" />
     </LinearLayout>

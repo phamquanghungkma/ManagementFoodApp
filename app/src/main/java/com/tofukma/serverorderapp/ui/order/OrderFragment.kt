@@ -170,9 +170,9 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                                 Common.currentOrderSelected = orderModel
                                 startActivity(Intent(context!!,TrackingOrderActivity::class.java))
                             }else{
-                                Toast.makeText(context, StringBuilder("Your order has been")
+                                Toast.makeText(context, StringBuilder("Đơn này là ")
                                     .append(Common.convertStatusToString(orderModel.orderStatus))
-                                    .append(". So you can't track directions"),
+                                    .append(". Bạn không thể kiểm tra trạng thái"),
                                     Toast.LENGTH_SHORT).show()
                             }
                         }
