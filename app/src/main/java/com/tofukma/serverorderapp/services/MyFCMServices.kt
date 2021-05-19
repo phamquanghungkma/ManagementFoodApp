@@ -31,12 +31,23 @@ class MyFCMServices : FirebaseMessagingService(){
                 intent.putExtra(Common.IS_OPEN_ACTIVITY_NEW_ORDER, true)
                 Common.showNotification(this, Random().nextInt(),
                     dataRev[Common.NOTI_TITLE],
-                    dataRev[Common.NOTI_CONTENT], intent)
+                    dataRev[Common.NOTI_CONTENT],
+                    dataRev["foodDetail"],
+                    dataRev["phone"],
+                    dataRev["totalPrice"],
+                    dataRev["address"],
+                    intent)
 
             }
             else
-                Common.showNotification(this,
-                    Random().nextInt(),dataRev[Common.NOTI_TITLE],dataRev[Common.NOTI_CONTENT],null)
+                Common.showNotification(this, Random().nextInt(),
+                    dataRev[Common.NOTI_TITLE],
+                    dataRev[Common.NOTI_CONTENT],
+                    dataRev["foodDetail"],
+                    dataRev["phone"],
+                    dataRev["totalPrice"],
+                    dataRev["address"],
+                    null)
         }
     }
 

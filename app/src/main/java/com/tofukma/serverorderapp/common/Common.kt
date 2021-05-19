@@ -21,6 +21,7 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.database.FirebaseDatabase
@@ -118,7 +119,10 @@ object Common {
         }
     }
 
-    fun showNotification(context: Context, id: Int, title: String?, content: String?, intent: Intent?) {
+    fun showNotification(context: Context, id: Int, title: String?, content: String?,foodDetail: String?,phone:String?,
+        totalPrice: String?,
+        address: String?
+        ,intent: Intent?) {
         var pendingIntent  : PendingIntent?= null
         if(intent != null)
             pendingIntent = PendingIntent.getActivity(context,id,intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -133,7 +137,7 @@ object Common {
             notificationChannel.description = " Order App "
             notificationChannel.enableLights(true)
             notificationChannel.enableVibration(true)
-            notificationChannel.lightColor = (Color.RED)
+            notificationChannel.lightColor = (Color.BLUE)
             notificationChannel.vibrationPattern = longArrayOf(0,1000,500,1000)
 
             notificationManager.createNotificationChannel(notificationChannel)
@@ -146,8 +150,15 @@ object Common {
         builder.setContentTitle(title!!)
                 .setContentText(content!!).setAutoCancel(true)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
+                 .setColor(Color.GREEN)
+                .setColorized(true)
                 .setLargeIcon(BitmapFactory.decodeResource(context.resources,R.drawable.ic_baseline_restaurant_menu_24))
-             .setStyle(NotificationCompat.BigTextStyle().bigText(content))
+             .setStyle(NotificationCompat.BigTextStyle().bigText(content + "\n"
+                     + foodDetail + "\n"
+                     + phone + "\n"
+                     + address + "\n"
+                     + totalPrice
+                 ).setBigContentTitle(title))
 
 
         if(pendingIntent != null)
