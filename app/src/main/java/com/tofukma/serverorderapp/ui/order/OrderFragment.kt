@@ -213,7 +213,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                     }))
 
                 buffer.add(MyButton(context!!,
-                    "DC",
+                    "Xoá",
                     30,
                     0,
                     Color.parseColor("#12005e"),
@@ -274,7 +274,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
     private fun showEditDialog(orderModel: OrderModel, pos: Int) {
         var layout_dialog:View?=null
         var builder:AlertDialog.Builder?=null
-
         var rdi_shipping:RadioButton?=null
         var rdi_shipped:RadioButton?=null
         var rdi_cancelled:RadioButton?=null
@@ -297,7 +296,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         {
             layout_dialog = LayoutInflater.from(context!!)
                 .inflate(R.layout.layout_dialog_shipping, null)
-            recycle_shipper = layout_dialog.findViewById(R.id.recycler_shipper) as RecyclerView//add when shippung order status
+            recycle_shipper = layout_dialog.findViewById(R.id.recycler_shipper) as RecyclerView   //add when shippung order status
             builder = AlertDialog.Builder(context!!,
                 android.R.style.Theme_Material_Light_NoActionBar_Fullscreen)
                 .setView(layout_dialog)
@@ -320,9 +319,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         //View
         val btn_ok = layout_dialog.findViewById<View>(R.id.btn_oke) as Button
         val btn_cancel = layout_dialog.findViewById<View>(R.id.btn_cancel) as Button
-
         val txt_status = layout_dialog.findViewById<View>(R.id.txt_status) as TextView
-
         //Set data
         txt_status.setText(StringBuilder("Order Status(")
             .append(Common.convertStatusToString(orderModel.orderStatus))
@@ -437,10 +434,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
     }
 
     private fun createShippingOrder(
-        pos: Int,
-        shipperModel: ShipperMOdel,
-        orderModel: OrderModel,
-        dialog: AlertDialog) {
+        pos: Int, shipperModel: ShipperMOdel, orderModel: OrderModel, dialog: AlertDialog) {
         val shippingOrder = ShippingOrderModel()
         shippingOrder.restaurantKey = Common.currentServerUser!!.restaurant!!
         shippingOrder.shipperName = shipperModel.name
@@ -449,8 +443,7 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
         shippingOrder.isStartTrip = false
         shippingOrder.currentLat = -1.0
         shippingOrder.currentLng = -1.0
-    FirebaseDatabase.getInstance()
-        .getReference(Common.RESTAURANT_REF)
+    FirebaseDatabase.getInstance().getReference(Common.RESTAURANT_REF)
         .child(Common.currentServerUser!!.restaurant!!)
         .child(Common.SHIPPING_ORDER_REF)
         .child(orderModel!!.key!!)
@@ -464,7 +457,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
             task: Task<Void> ->
             if(task.isSuccessful){
                 dialog.dismiss()
-
                 FirebaseDatabase.getInstance().getReference(Common.TOKEN_REF).child(shipperModel.key!!)
                     .addListenerForSingleValueEvent(object: ValueEventListener{
                         override fun onCancelled(p0: DatabaseError) {
@@ -514,9 +506,6 @@ class OrderFragment : Fragment(), IShipperLoadCallbackListener {
                         }
 
                     })
-
-
-
 //                updateOrder(pos, orderModel, 1)
                 Toast.makeText(context,"Đơn hàng được gửi cho giao hàng"+shipperModel.name,Toast.LENGTH_SHORT).show()
             }

@@ -28,7 +28,7 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
         return orderModelList
     }
 
-    public fun loadOrder(status: Int) {
+     fun loadOrder(status: Int) {
         Log.d("status",status.toString())
         val tempList  : MutableList<OrderModel> = ArrayList()
         val orderRef = FirebaseDatabase.getInstance()
@@ -40,9 +40,7 @@ class OrderViewModel : ViewModel(), IOrderCallbackListener {
         orderRef.addListenerForSingleValueEvent(object :ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 orderCallbackListener.onOrderLoadFailed(p0.message)
-
             }
-
             override fun onDataChange(p0: DataSnapshot) {
 
                 for (itemSnapShot in p0.children){
